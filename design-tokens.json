@@ -1,0 +1,48 @@
+{
+  "brand": {
+    "blue": "#0071D7",
+    "blueLight": "#0091C8",
+    "cyan": "#00A7B6",
+    "cyanLight": "#00C5B8",
+    "accent": "#00D4C8",
+    "darkNavy": "#000211",
+    "white": "#F5F5F5"
+  },
+  "themes": {
+    "light": {
+      "background": "#F7FAFC",
+      "surface": "#FFFFFF",
+      "card": "#FFFFFF",
+      "border": "#E6ECF5",
+      "heading": "#0F172A",
+      "body": "#334155",
+      "muted": "#64748B",
+      "primaryButton": "#0071D7",
+      "primaryButtonHover": "#005FC5",
+      "secondaryButton": "#FFFFFF",
+      "secondaryButtonBorder": "#E6ECF5"
+    },
+    "dark": {
+      "background": "#000211",
+      "surface": "#0A1224",
+      "card": "#111C33",
+      "border": "#1C2947",
+      "heading": "#FFFFFF",
+      "body": "#CBD5E1",
+      "muted": "#94A3B8",
+      "primaryButton": "#0071D7",
+      "primaryButtonHover": "#0091C8",
+      "secondaryButton": "#111C33",
+      "secondaryButtonBorder": "#1C2947"
+    }
+  },
+  "status": {
+    "success": "#18C964",
+    "warning": "#F5A524",
+    "error": "#F31260",
+    "info": "#00A7B6"
+  },
+  "gradients": {
+    "primary": "linear-gradient(90deg, #0071D7 0%, #0091C8 35%, #00A7B6 70%, #00D4C8 100%)"
+  }
+}
