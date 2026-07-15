@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, CheckSquare, FolderKanban, Users, BarChart, FileText, Menu, X, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { UserButton, SignOutButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "@/components/mode-toggle";
 
 const mainLinks = [
@@ -110,15 +110,10 @@ export function AppSidebar() {
           {workspaceLinks.map(renderLink)}
         </nav>
 
-        <div className={`p-4 border-t border-white/10 flex flex-col ${isCollapsed ? "gap-4 items-center px-2" : "gap-3"} shrink-0`}>
-          <div className={`flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between w-full"}`}>
+        <div className="p-4 border-t border-white/10 flex flex-col gap-3 shrink-0">
+          <div className={`flex items-center ${isCollapsed ? "flex-col gap-4" : "justify-between"} w-full`}>
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "gap-2"}`}>
-              <UserButton />
-              {!isCollapsed && (
-                <Link href="/dashboard/profile" onClick={() => setIsOpen(false)}>
-                  <span className="text-sm font-medium text-white hover:text-primary transition-colors cursor-pointer">Profile</span>
-                </Link>
-              )}
+              <UserButton showName={!isCollapsed} appearance={{ elements: { userButtonOuterIdentifier: "text-white font-medium text-sm ml-2" } }} />
             </div>
             {!isCollapsed ? (
               <ModeToggle className="text-white hover:bg-white/10 hover:text-white border-0" />
@@ -126,13 +121,6 @@ export function AppSidebar() {
               <ModeToggle className="text-white hover:bg-white/10 hover:text-white border-0 w-8 h-8 rounded-full" />
             )}
           </div>
-          
-          <SignOutButton redirectUrl="/">
-            <button className={`flex items-center ${isCollapsed ? "justify-center px-0" : "gap-3 px-3"} py-2 rounded-md transition-colors text-white/70 hover:bg-destructive/20 hover:text-red-400 w-full ${isCollapsed ? "" : "text-left"}`} title={isCollapsed ? "Log Out" : undefined}>
-              <LogOut size={18} className="shrink-0" />
-              {!isCollapsed && <span className="text-sm font-medium">Log Out</span>}
-            </button>
-          </SignOutButton>
         </div>
       </aside>
     </>
