@@ -113,7 +113,7 @@ export function AppSidebar() {
         <div className="p-4 border-t border-white/10 flex flex-col gap-3 shrink-0">
           <div className={`flex items-center ${isCollapsed ? "flex-col gap-4" : "justify-between"} w-full`}>
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "gap-2"}`}>
-              <UserButton showName={!isCollapsed} appearance={{ elements: { userButtonOuterIdentifier: "text-white font-medium text-sm ml-2" } }} />
+              <UserButton showName={!isCollapsed} appearance={{ elements: { userButtonOuterIdentifier: "!text-white font-medium text-sm ml-2" } }} />
             </div>
             {!isCollapsed ? (
               <ModeToggle className="text-white hover:bg-white/10 hover:text-white border-0" />
