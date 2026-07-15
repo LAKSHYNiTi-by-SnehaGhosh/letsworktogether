@@ -1,126 +1,178 @@
 "use client";
 
-import { Zap, Clock, CheckCircle, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { getUserDashboardData } from "@/app/actions/queries";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { ActiveProjects } from "@/components/dashboard/active-projects";
+import { TodaysTasks } from "@/components/dashboard/todays-tasks";
+import { AiMentor } from "@/components/dashboard/ai-mentor";
+import { TeamActivity } from "@/components/dashboard/team-activity";
+import { ProgressChart } from "@/components/dashboard/progress-chart";
+import { UpcomingEvents } from "@/components/dashboard/upcoming-events";
+import { SkillProgress } from "@/components/dashboard/skill-progress";
+import { WeeklyContribution } from "@/components/dashboard/weekly-contribution";
+import { Briefcase, CheckCircle, Users, Activity } from "lucide-react";
+
+// Mock Data for the UI based on mockup
+const mockProjects = [
+  {
+    id: "1",
+    name: "LakshyaNiti VES Platform",
+    type: "Web App",
+    progress: 72,
+    sprint: "Sprint 3",
+    dueDate: "5 days",
+    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
+  },
+  {
+    id: "2",
+    name: "Food Delivery App",
+    type: "Mobile App",
+    progress: 45,
+    sprint: "Sprint 2",
+    dueDate: "10 days",
+    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
+  },
+  {
+    id: "3",
+    name: "AI Study Buddy",
+    type: "AI/ML",
+    progress: 30,
+    sprint: "Sprint 1",
+    dueDate: "15 days",
+    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
+  }
+];
+
+const mockTasks = [
+  { id: "1", title: "Design Authentication Flow", priority: "High" as const, completed: true },
+  { id: "2", title: "Implement Login API", priority: "High" as const, completed: false },
+  { id: "3", title: "Code Review - User Module", priority: "Medium" as const, completed: false },
+  { id: "4", title: "Update Project Documentation", priority: "Medium" as const, completed: false },
+  { id: "5", title: "Team Standup Meeting", priority: "Low" as const, completed: false },
+];
+
+const mockActivities = [
+  { id: "1", userAvatar: "/day_expectation.jpg", userName: "Sneha", action: "pushed 4 commits", time: "2h ago" },
+  { id: "2", userAvatar: "/day_expectation.jpg", userName: "Rahul", action: "completed Task #21", time: "4h ago" },
+  { id: "3", userAvatar: "/day_expectation.jpg", userName: "Amit", action: "reviewed PR #45", time: "6h ago" },
+  { id: "4", userAvatar: "/day_expectation.jpg", userName: "You", action: "updated documentation", time: "8h ago" },
+];
+
+const mockEvents = [
+  { id: "1", day: "10", month: "Jun", title: "Team Standup", time: "10:00 AM - 10:30 AM" },
+  { id: "2", day: "10", month: "Jun", title: "Sprint Review", time: "03:00 PM - 04:00 PM" },
+  { id: "3", day: "11", month: "Jun", title: "Client Meeting", time: "11:00 AM - 12:00 PM" },
+];
+
+const mockSkills = [
+  { name: "React", progress: 80 },
+  { name: "Node.js", progress: 75 },
+  { name: "SQL", progress: 70 },
+  { name: "AWS", progress: 60 },
+  { name: "Docker", progress: 50 },
+];
+
+const mockContributions = {
+  commits: 18, commitsTrend: "+8%",
+  codeReviews: 7, codeReviewsTrend: "+12%",
+  tasksDone: 12, tasksDoneTrend: "+20%",
+  hoursSpent: 24, hoursSpentTrend: "+15%"
+};
 
 export default function DashboardPage() {
   const { user } = useUser();
-  const [showAiSuggestion, setShowAiSuggestion] = useState(true);
-
-  const [activeProjects, setActiveProjects] = useState(0);
-  const [tasksCompleted, setTasksCompleted] = useState(0);
-  const [recentActivities, setRecentActivities] = useState<Array<{ id: string, title: string, status: string, updatedAt?: Date | null, createdAt: Date }>>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) return;
-
-    getUserDashboardData()
-      .then((data) => {
-        setActiveProjects(data.activeProjects);
-        setTasksCompleted(data.tasksCompleted);
-        setRecentActivities(data.recentActivities);
-      })
-      .catch((error) => console.error("Error fetching dashboard data:", error))
-      .finally(() => setLoading(false));
-  }, [user]);
-
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-lwt-blue" />
-      </div>
-    );
-  }
+  const firstName = user?.firstName || "Ishani";
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Good morning{user?.firstName ? `, ${user.firstName}` : ""}.</h1>
-        <p className="text-muted-foreground mt-1">Here is a summary of your live workspace.</p>
+    <div className="w-full max-w-[1400px] mx-auto space-y-6 pb-12">
+      
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight flex items-center gap-2">
+            Good morning, {firstName}! <span>👋</span>
+          </h1>
+          <p className="text-muted-foreground mt-2 text-lg">Let&apos;s build something amazing today.</p>
+        </div>
+        <div className="hidden md:flex border-l-4 border-lwt-blue bg-lwt-blue/5 p-4 rounded-r-xl max-w-sm">
+          <p className="text-sm font-medium text-foreground/80 leading-relaxed italic">
+            &quot;The best way to predict the future is to create it together.&quot;
+            <span className="block mt-2 text-lwt-blue not-italic">- LakshyaNiti VES</span>
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <StatCard title="Active Projects" value={activeProjects.toString()} icon={<Zap className="h-4 w-4 text-primary" />} />
-        <StatCard title="Tasks Completed" value={tasksCompleted.toString()} icon={<CheckCircle className="h-4 w-4 text-green-500" />} />
-        <StatCard title="Tasks Pending" value={(recentActivities.length - tasksCompleted).toString()} icon={<Clock className="h-4 w-4 text-blue-500" />} />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm col-span-4">
-          <h3 className="font-semibold mb-4 text-lg">Recent Activity</h3>
-          <div className="space-y-4">
-            {recentActivities.length === 0 ? (
-               <p className="text-sm text-muted-foreground">No recent tasks. Start your first project!</p>
-            ) : (
-              recentActivities.map((task) => (
-                <ActivityItem 
-                  key={task.id} 
-                  title={task.title} 
-                  status={task.status} 
-                  time={new Date(task.updatedAt || task.createdAt).toLocaleDateString()} 
-                />
-              ))
-            )}
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard 
+          title="Active Projects" 
+          value="5" 
+          trend="+1 this week" 
+          icon={<Briefcase className="h-6 w-6 text-blue-500" />} 
+          iconBgClass="bg-blue-500/10"
+        />
+        <StatCard 
+          title="Tasks Completed" 
+          value="28" 
+          trend="+15% this week" 
+          icon={<CheckCircle className="h-6 w-6 text-emerald-500" />} 
+          iconBgClass="bg-emerald-500/10"
+        />
+        <StatCard 
+          title="Team Members" 
+          value="8" 
+          trend="+2 this week" 
+          icon={<Users className="h-6 w-6 text-purple-500" />} 
+          iconBgClass="bg-purple-500/10"
+        />
+        <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm flex flex-col justify-center">
+          <span className="text-[13px] font-medium text-muted-foreground mb-2">Overall Progress</span>
+          <div className="flex items-end justify-between mb-2">
+            <span className="text-3xl font-bold">72%</span>
+            <Activity className="text-indigo-500 h-6 w-6 mb-1" />
+          </div>
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full" style={{ width: "72%" }} />
           </div>
         </div>
+      </div>
 
-        <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm col-span-3">
-          <h3 className="font-semibold mb-4 text-lg">AI Mentor Suggestions</h3>
-          
-          {showAiSuggestion ? (
-            <div className="rounded-lg bg-primary/5 p-4 border border-primary/10">
-              <p className="text-sm text-foreground/80 leading-relaxed">
-                Connect the GEMINI API KEY to start getting contextual feedback on your tasks, automated sprint generation, and code reviews!
-              </p>
-              <div className="mt-4 flex gap-2">
-                <button 
-                  onClick={() => alert("Please provide the GEMINI_API_KEY to enable AI Generation.")}
-                  className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-medium"
-                >
-                  Enable AI
-                </button>
-                <button 
-                  onClick={() => setShowAiSuggestion(false)}
-                  className="text-xs bg-muted text-muted-foreground px-3 py-1.5 rounded-md font-medium hover:bg-muted/80"
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          ) : (
-             <div className="flex flex-col items-center justify-center py-8 text-center">
-               <p className="text-sm text-muted-foreground">No new suggestions at the moment.</p>
-             </div>
-          )}
+      {/* Main Grid: Projects, Tasks, AI Mentor */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 xl:col-span-5">
+          <ActiveProjects projects={mockProjects} />
+        </div>
+        <div className="lg:col-span-4 xl:col-span-4">
+          <TodaysTasks tasks={mockTasks} />
+        </div>
+        <div className="lg:col-span-3 xl:col-span-3">
+          <AiMentor />
         </div>
       </div>
-    </div>
-  );
-}
 
-function StatCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
-        {icon}
+      {/* Activity, Charts, Events Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 xl:col-span-3">
+          <TeamActivity activities={mockActivities} />
+        </div>
+        <div className="lg:col-span-5 xl:col-span-6">
+          <ProgressChart />
+        </div>
+        <div className="lg:col-span-3 xl:col-span-3">
+          <UpcomingEvents events={mockEvents} />
+        </div>
       </div>
-      <div className="text-3xl font-bold">{value}</div>
-    </div>
-  );
-}
 
-function ActivityItem({ title, status, time }: { title: string, status: string, time: string }) {
-  return (
-    <div className="flex items-center justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0">
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">Status: {status}</p>
+      {/* Skills & Contribution Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="xl:col-span-5">
+          <SkillProgress skills={mockSkills} />
+        </div>
+        <div className="xl:col-span-7">
+          <WeeklyContribution data={mockContributions} />
+        </div>
       </div>
-      <span className="text-xs text-muted-foreground">{time}</span>
+
     </div>
   );
 }
