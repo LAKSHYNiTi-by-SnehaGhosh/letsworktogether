@@ -21,11 +21,10 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
+  hidden: { opacity: 0, y: 30 },
   show: { 
     opacity: 1, 
     y: 0, 
-    filter: "blur(0px)",
     transition: { type: "spring" as const, stiffness: 80, damping: 20 } 
   },
 };
@@ -161,7 +160,7 @@ export default function LandingPage() {
             className="container mx-auto max-w-5xl text-center relative z-10"
           >
             <motion.div variants={itemVariants}>
-              <h1 className="text-5xl font-medium tracking-tight sm:text-6xl lg:text-[5rem] leading-[1.05] text-foreground/90 max-w-4xl mx-auto">
+              <h1 className="text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl leading-[1.1] text-foreground/90 max-w-4xl mx-auto">
                 The AI-powered execution layer <br className="hidden sm:block" />
                 <span className="bg-[image:var(--brand-gradient)] bg-clip-text text-transparent font-semibold">
                   between education and your first job
