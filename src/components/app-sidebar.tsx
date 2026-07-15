@@ -52,7 +52,7 @@ export function AppSidebar() {
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between px-4 h-20 border-b border-white/10 bg-transparent text-white w-full shrink-0">
         <Link href="/dashboard" className="flex items-center h-full py-3">
-          <Image src="/full_icon.png" alt="LWT Workspace" width={400} height={280} className="w-[280px] md:w-[320px] h-auto object-contain translate-y-[6px]" priority />
+          <Image src="/main_icon.png" alt="LWT Workspace" width={500} height={500} className="w-[60px] md:w-[70px] h-auto object-contain" priority />
         </Link>
         <button onClick={toggleSidebar} className="p-2 text-white">
           <Menu size={24} />
@@ -75,11 +75,7 @@ export function AppSidebar() {
       >
         <div className={`h-24 flex items-center px-4 border-b border-white/10 shrink-0 bg-transparent relative group ${isCollapsed ? "justify-center" : "justify-between"}`}>
           <Link href="/dashboard" className={`flex items-center h-full w-full py-2 ${isCollapsed ? "justify-center" : "justify-start"} transition-opacity duration-200 ${isCollapsed ? "group-hover:opacity-0" : ""}`} onClick={() => setIsOpen(false)}>
-            {isCollapsed ? (
-              <Image src="/full-icon.png" alt="LWT Workspace" width={90} height={90} className="w-[90px] min-w-[90px] h-auto object-contain" priority />
-            ) : (
-              <Image src="/full_icon.png" alt="LWT Workspace" width={400} height={280} className="w-[280px] md:w-[320px] h-auto object-contain translate-y-[6px]" priority />
-            )}
+            <Image src="/main_icon.png" alt="LWT Workspace" width={500} height={500} className="w-[70px] min-w-[70px] h-auto object-contain" priority />
           </Link>
           
           {isCollapsed ? (
