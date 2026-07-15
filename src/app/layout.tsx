@@ -69,13 +69,6 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            {/* Custom Branding Footer for Development */}
-            <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-background/80 backdrop-blur-sm border rounded-full shadow-sm text-xs text-muted-foreground">
-              <img src="/brand-icon.png" alt="LWT Logo" className="w-4 h-4 rounded-sm" />
-              <span className="font-medium text-foreground">Let&apos;s Work Together</span>
-              <span className="mx-1">•</span>
-              <span>Development by LAKSHYNiTi</span>
-            </div>
           </ThemeProvider>
         </body>
       </html>
