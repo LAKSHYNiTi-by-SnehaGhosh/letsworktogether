@@ -48,7 +48,7 @@ export default function RootLayout({
     <ClerkProvider 
       appearance={{ 
         theme: shadcn,
-        layout: {
+        options: {
           logoImageUrl: '/brand-icon.png',
         },
         elements: {
