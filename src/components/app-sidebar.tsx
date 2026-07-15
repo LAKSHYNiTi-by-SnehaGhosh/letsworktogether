@@ -52,7 +52,7 @@ export function AppSidebar() {
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between px-4 h-20 border-b border-white/10 bg-transparent text-white w-full shrink-0">
         <Link href="/dashboard" className="flex items-center h-full py-3">
-          <Image src="/full-clean.png" alt="LWT Workspace" width={250} height={175} className="w-[200px] h-auto object-contain" priority />
+          <Image src="/full_icon.png" alt="LWT Workspace" width={250} height={175} className="w-[200px] h-auto object-contain" priority />
         </Link>
         <button onClick={toggleSidebar} className="p-2 text-white">
           <Menu size={24} />
@@ -78,7 +78,7 @@ export function AppSidebar() {
             {isCollapsed ? (
               <Image src="/full-icon.png" alt="LWT Workspace" width={90} height={90} className="w-[90px] min-w-[90px] h-auto object-contain" priority />
             ) : (
-              <Image src="/full-clean.png" alt="LWT Workspace" width={250} height={175} className="w-[200px] h-auto object-contain" priority />
+              <Image src="/full_icon.png" alt="LWT Workspace" width={250} height={175} className="w-[200px] h-auto object-contain" priority />
             )}
           </Link>
           
