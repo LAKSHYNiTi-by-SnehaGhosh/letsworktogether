@@ -84,7 +84,7 @@ export default function LandingPage() {
       >
         <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center ml-0 md:ml-2 py-2">
-            <Image src="/full_icon.png" alt="LWT Workspace" width={400} height={280} className="w-[240px] md:w-[320px] h-auto object-contain translate-y-2" priority />
+            <Image src="/full_icon.png" alt="LWT Workspace" width={400} height={280} className="w-[280px] md:w-[320px] h-auto object-contain translate-y-[6px]" priority />
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link href="#features" className="text-white/70 hover:text-white transition-colors">Features</Link>
