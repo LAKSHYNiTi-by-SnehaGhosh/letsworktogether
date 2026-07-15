@@ -52,7 +52,7 @@ export default function RootLayout({
           logoImageUrl: '/brand-icon.png',
         },
         elements: {
-          watermark: "hidden",
+          watermark: "!hidden hidden",
         }
       }}
     >

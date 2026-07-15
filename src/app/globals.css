@@ -148,6 +148,13 @@
 .cl-internal-b3al4t,
 .cl-devMode,
 .cl-watermark,
+.cl-poweredBy,
+a[href*="clerk.com"],
+a[href*="clerk.dev"],
+div[class*="cl-internal-"] > a[href*="clerk"],
 div[style*="z-index: 99999"][style*="position: fixed"] {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
