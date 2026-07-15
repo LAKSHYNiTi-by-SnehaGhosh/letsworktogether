@@ -143,3 +143,11 @@
     @apply font-sans;
   }
 }
+
+/* Hide Clerk's development mode badge and default watermark */
+.cl-internal-b3al4t,
+.cl-devMode,
+.cl-watermark,
+div[style*="z-index: 99999"][style*="position: fixed"] {
+  display: none !important;
+}
