@@ -21,11 +21,10 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
+  hidden: { opacity: 0, y: 30 },
   show: { 
     opacity: 1, 
     y: 0, 
-    filter: "blur(0px)",
     transition: { type: "spring" as const, stiffness: 80, damping: 20 } 
   },
 };
@@ -161,7 +160,7 @@ export default function LandingPage() {
             className="container mx-auto max-w-5xl text-center relative z-10"
           >
             <motion.div variants={itemVariants}>
-              <h1 className="text-5xl font-medium tracking-tight sm:text-6xl lg:text-[5rem] leading-[1.05] text-foreground/90 max-w-4xl mx-auto">
+              <h1 className="text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl leading-[1.1] text-foreground/90 max-w-4xl mx-auto">
                 The AI-powered execution layer <br className="hidden sm:block" />
                 <span className="bg-[image:var(--brand-gradient)] bg-clip-text text-transparent font-semibold">
                   between education and your first job
@@ -318,9 +317,12 @@ export default function LandingPage() {
       <footer className="border-t border-border/20 py-12 bg-muted/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(99,102,241,0.03))] pointer-events-none" />
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-          <div className="flex items-center gap-3">
-            <Image src="/brand-icon.png" alt="LWT Icon" width={24} height={24} className="h-6 w-6 opacity-70" />
-            <span className="text-sm font-medium text-muted-foreground">Let&apos;s Work Together © 2026</span>
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground">© 2026 LAKSHYNiTi.</span>
+            <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+              <Image src="/brand-icon.png" alt="LWT Icon" width={20} height={20} className="h-4 w-4" />
+              <span>&quot;Let&apos;s Work Together&quot; is a service provided by LAKSHYNiTi.</span>
+            </div>
           </div>
           <div className="flex gap-8 text-sm font-medium text-muted-foreground">
             <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
