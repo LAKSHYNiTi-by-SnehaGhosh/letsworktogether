@@ -69,13 +69,13 @@ export function AppSidebar() {
 
       {/* Sidebar Content */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-56"} border-r border-white/10 bg-[#040a14] text-white flex flex-col transition-all duration-300 md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-52"} border-r border-white/10 bg-[#040a14] text-white flex flex-col transition-all duration-300 md:static md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className={`h-24 flex items-center px-4 border-b border-white/10 shrink-0 bg-transparent relative group ${isCollapsed ? "justify-center" : "justify-between"}`}>
           <Link href="/dashboard" className={`flex items-center h-full w-full py-2 ${isCollapsed ? "justify-center" : "justify-start"} transition-opacity duration-200 ${isCollapsed ? "group-hover:opacity-0" : ""}`} onClick={() => setIsOpen(false)}>
-            <Image src="/main_icon.png" alt="LWT Workspace" width={500} height={500} className="w-[70px] min-w-[70px] h-auto object-contain" priority />
+            <Image src="/main_icon.png" alt="LWT Workspace" width={500} height={500} className="w-[90px] min-w-[90px] h-auto object-contain" priority />
           </Link>
           
           {isCollapsed ? (
