@@ -69,7 +69,7 @@ export function AppSidebar() {
 
       {/* Sidebar Content */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-64"} border-r border-white/10 bg-[#040a14] text-white flex flex-col transition-all duration-300 md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-56"} border-r border-white/10 bg-[#040a14] text-white flex flex-col transition-all duration-300 md:static md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
