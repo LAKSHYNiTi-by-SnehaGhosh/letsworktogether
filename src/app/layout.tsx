@@ -45,13 +45,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{ theme: shadcn }}>
+    <ClerkProvider 
+      appearance={{ 
+        theme: shadcn,
+        options: {
+          logoImageUrl: '/brand-icon.png',
+        },
+        elements: {
+          watermark: "!hidden hidden",
+        }
+      }}
+    >
       <html
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
-        <body className="min-h-full flex flex-col">
+        <body className="min-h-full flex flex-col relative">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
