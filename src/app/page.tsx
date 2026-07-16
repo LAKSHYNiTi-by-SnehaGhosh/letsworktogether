@@ -318,9 +318,9 @@ export default function LandingPage() {
           <div className="flex justify-center lg:justify-start">
             <span className="text-sm font-medium text-muted-foreground">© 2026 LAKSHYNiTi.</span>
           </div>
-          <div className="flex justify-center items-center gap-1.5 text-sm font-medium text-muted-foreground whitespace-nowrap">
-            <Image src="/full-icon.png" alt="LWT Icon" width={20} height={20} className="h-4 w-auto object-contain" />
-            <span>&quot;Let&apos;s Work Together&quot; is a service provided by LAKSHYNiTi.</span>
+          <div className="flex justify-center items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+            <Image src="/brand-icon.png" alt="LWT Icon" width={20} height={20} className="h-5 w-auto object-contain" />
+            <span>LAKSHYNiTi LWT</span>
           </div>
           <div className="flex justify-center lg:justify-end gap-8 text-sm font-medium text-muted-foreground">
             <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
