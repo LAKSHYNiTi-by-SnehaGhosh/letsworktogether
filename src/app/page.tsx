@@ -247,7 +247,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        <section id="features" className="container mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8 sm:py-40 relative">
+        <section id="features" className="container mx-auto max-w-7xl px-4 pt-20 pb-32 sm:px-6 lg:px-8 sm:pt-24 sm:pb-40 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-primary/5 blur-[120px] rounded-full -z-10" />
           
           <motion.div 
