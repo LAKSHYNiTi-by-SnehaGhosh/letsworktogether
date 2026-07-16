@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { createProject, joinProject } from "@/app/actions/projects";
 import { getUserProjects } from "@/app/actions/queries";
+import { generateSprintForProject } from "@/app/actions/ai";
 
 import {
   Dialog,
@@ -34,23 +35,43 @@ export default function ProjectsPage() {
   const [joinProjectId, setJoinProjectId] = useState("");
   const [isJoining, setIsJoining] = useState(false);
 
+  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
+  const [aiProjectId, setAiProjectId] = useState("");
+  const [aiPrompt, setAiPrompt] = useState("Generate a 2-week sprint with 3 milestones for building the MVP.");
+
   useEffect(() => {
     if (!user) return;
 
     getUserProjects()
       .then((projs) => {
         setProjects(projs);
+        if (projs.length > 0) setAiProjectId(projs[0].id);
       })
       .catch((err) => console.error("Error fetching projects:", err))
       .finally(() => setLoading(false));
   }, [user]);
 
-  const handleGenerateAI = () => {
+  const handleGenerateAI = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiProjectId || !aiPrompt) return;
+
     setIsGenerating(true);
-    setTimeout(() => {
+    try {
+      const result = await generateSprintForProject(aiProjectId, aiPrompt);
+      if (result.success) {
+        setIsAiDialogOpen(false);
+        setAiPrompt("Generate a 2-week sprint with 3 milestones for building the MVP.");
+        alert("Sprint generated successfully! Check your project board.");
+        getUserProjects().then(setProjects);
+      } else {
+        alert(result.error || "Failed to generate sprint.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate sprint. Check console for details.");
+    } finally {
       setIsGenerating(false);
-      alert("Please provide the GEMINI_API_KEY to enable AI Generation.");
-    }, 1000);
+    }
   };
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -103,12 +124,57 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
           <p className="text-muted-foreground mt-1">Manage your active projects and let the AI PM generate new sprints.</p>
         </div>
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Button onClick={handleGenerateAI} disabled={isGenerating} className="gap-2 border-0 bg-[image:var(--brand-gradient)] text-white shadow-md hover:opacity-90">
-            {isGenerating ? <Clock className="h-4 w-4 animate-spin text-accent" /> : <Bot className="h-4 w-4 text-accent-foreground dark:text-accent" />}
-            {isGenerating ? "AI is Generating..." : "Generate Sprint with AI"}
-          </Button>
-        </motion.div>
+        <Dialog open={isAiDialogOpen} onOpenChange={setIsAiDialogOpen}>
+          <DialogTrigger
+            render={
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button disabled={isGenerating} className="gap-2 border-0 bg-[image:var(--brand-gradient)] text-white shadow-md hover:opacity-90">
+                  {isGenerating ? <Clock className="h-4 w-4 animate-spin text-accent" /> : <Bot className="h-4 w-4 text-accent-foreground dark:text-accent" />}
+                  {isGenerating ? "AI is Generating..." : "Generate Sprint with AI"}
+                </Button>
+              </motion.div>
+            }
+          />
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>AI Project Manager</DialogTitle>
+              <DialogDescription>
+                Select a project and describe what you want the AI to plan for you.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleGenerateAI} className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Project</label>
+                <select 
+                  required
+                  value={aiProjectId}
+                  onChange={(e) => setAiProjectId(e.target.value)}
+                  className="w-full p-2.5 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Prompt</label>
+                <textarea 
+                  required
+                  rows={4}
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  className="w-full p-2.5 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  placeholder="e.g. Generate a sprint for building the user authentication flow."
+                />
+              </div>
+              <div className="flex justify-end pt-4">
+                <Button type="submit" disabled={isGenerating} className="bg-[image:var(--brand-gradient)] border-0 text-white shadow-sm w-full">
+                  {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate Now"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

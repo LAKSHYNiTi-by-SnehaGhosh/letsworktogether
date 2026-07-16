@@ -1,40 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, Bot, Star, Activity, Mail } from "lucide-react";
+import { Users, Bot, Star, Activity, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const teamMembers = [
-  {
-    id: 1,
-    name: "Gemini 1.5 Pro",
-    role: "Senior Software Architect",
-    isAi: true,
-    status: "Online",
-    tasksCompleted: 142,
-    rating: 4.9,
-  },
-  {
-    id: 2,
-    name: "Claude 3.5 Sonnet",
-    role: "Lead UI/UX Designer",
-    isAi: true,
-    status: "Online",
-    tasksCompleted: 89,
-    rating: 4.8,
-  },
-  {
-    id: 3,
-    name: "You",
-    role: "Junior Full Stack Engineer",
-    isAi: false,
-    status: "Online",
-    tasksCompleted: 24,
-    rating: 4.5,
-  }
-];
+import { getTeamMembers } from "@/app/actions/team";
 
 export default function TeamPage() {
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getTeamMembers()
+      .then(setTeamMembers)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-lwt-blue" />
+      </div>
+    );
+  }
   return (
     <div className="p-8 max-w-6xl mx-auto h-full flex flex-col">
       <div className="flex items-center justify-between mb-8">

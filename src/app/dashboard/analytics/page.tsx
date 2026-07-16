@@ -1,20 +1,37 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, BarChart3, Target, Award } from "lucide-react";
+import { TrendingUp, BarChart3, Target, Award, Loader2 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-
-const data = [
-  { name: "Mon", xp: 120 },
-  { name: "Tue", xp: 250 },
-  { name: "Wed", xp: 380 },
-  { name: "Thu", xp: 310 },
-  { name: "Fri", xp: 590 },
-  { name: "Sat", xp: 700 },
-  { name: "Sun", xp: 850 },
-];
+import { getUserAnalytics } from "@/app/actions/analytics";
 
 export default function AnalyticsPage() {
+  const [data, setData] = useState<{
+    totalXp: number;
+    currentLevel: number;
+    velocity: number;
+    accuracy: number;
+    chartData: { name: string; xp: number }[];
+  } | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getUserAnalytics()
+      .then(setData)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-lwt-blue" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-6xl mx-auto h-full flex flex-col">
       <div className="mb-8">
@@ -24,10 +41,10 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { title: "Total XP Earned", value: "3,200", icon: Award, color: "text-amber-500" },
-          { title: "Current Level", value: "Lvl 4", icon: TrendingUp, color: "text-emerald-500" },
-          { title: "Sprint Velocity", value: "24 pts", icon: BarChart3, color: "text-blue-500" },
-          { title: "Tasks Accuracy", value: "94%", icon: Target, color: "text-indigo-500" },
+          { title: "Total XP Earned", value: data.totalXp.toLocaleString(), icon: Award, color: "text-amber-500" },
+          { title: "Current Level", value: `Lvl ${data.currentLevel}`, icon: TrendingUp, color: "text-emerald-500" },
+          { title: "Sprint Velocity", value: `${data.velocity} pts`, icon: BarChart3, color: "text-blue-500" },
+          { title: "Tasks Accuracy", value: `${data.accuracy}%`, icon: Target, color: "text-indigo-500" },
         ].map((stat, i) => (
           <motion.div 
             key={i}
@@ -54,7 +71,7 @@ export default function AnalyticsPage() {
         <h3 className="font-semibold mb-6 text-lg">XP Progression (This Week)</h3>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={data.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorXp" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>

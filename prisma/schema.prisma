@@ -14,11 +14,13 @@ model User {
   id           String    @id
   email        String    @unique
   passwordHash String?   @map("password_hash")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+  aiUsageCount       Int       @default(0) @map("ai_usage_count")
+  aiUsageResetDate   DateTime? @map("ai_usage_reset_date")
 
-  profile         Profile?
+  profile            Profile?
   sessions        Session[]
   memberships     OrganizationMember[]
   teamMemberships TeamMember[]
@@ -30,6 +32,7 @@ model User {
   activityLogs    ActivityLog[]
   apiKeys         ApiKey[]
   attachments     Attachment[]
+  documents       Document[]
 
   @@map("users")
 }
@@ -292,6 +295,7 @@ model Project {
   tasks        Task[]
   milestones   Milestone[]
   members      ProjectMember[]
+  documents    Document[]
 
   @@index([organizationId])
   @@index([clientId])
@@ -480,3 +484,26 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// ------------------------------------------------------
+// Documents
+// ------------------------------------------------------
+
+model Document {
+  id        String    @id @default(uuid()) @db.Uuid
+  projectId String    @map("project_id") @db.Uuid
+  title     String
+  content   String?   @db.Text
+  type      String    // PRD, Technical, Design, General
+  authorId  String?   @map("author_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([authorId])
+  @@map("documents")
+}
+

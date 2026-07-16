@@ -115,9 +115,9 @@ export default function LandingPage() {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div 
-              initial={{ opacity: 0, height: 0, filter: "blur(10px)" }}
-              animate={{ opacity: 1, height: "auto", filter: "blur(0px)" }}
-              exit={{ opacity: 0, height: 0, filter: "blur(10px)" }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className="md:hidden border-t border-white/10 bg-[#000211]/90 backdrop-blur-3xl text-white px-4 py-6 space-y-6 overflow-hidden shadow-2xl"
             >
@@ -253,8 +253,8 @@ export default function LandingPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-primary/5 blur-[120px] rounded-full -z-10" />
           
           <motion.div 
-            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ type: "spring", stiffness: 80, damping: 20 }}
             className="text-center max-w-3xl mx-auto mb-20"
