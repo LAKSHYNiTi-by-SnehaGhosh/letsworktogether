@@ -2,6 +2,7 @@ import { NextAdmin } from "@premieroctet/next-admin";
 import { getNextAdminProps } from "@premieroctet/next-admin/appRouter";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
