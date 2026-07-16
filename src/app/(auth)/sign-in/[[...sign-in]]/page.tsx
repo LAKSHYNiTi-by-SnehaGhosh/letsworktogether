@@ -17,12 +17,14 @@ export default function SignInPage() {
         </div>
       </ClerkLoading>
       <ClerkLoaded>
-        <div className="relative custom-auth-card w-fit mx-auto flex flex-col items-center">
-          <SignIn appearance={{ elements: { watermark: "hidden" } }} />
-          <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-1 text-[11px] text-muted-foreground font-medium text-center z-50 pointer-events-none">
+        <div className="flex flex-col items-center gap-6 w-full max-w-[400px] mx-auto">
+          <div className="w-full shadow-2xl rounded-xl">
+            <SignIn appearance={{ elements: { watermark: "hidden" } }} />
+          </div>
+          <div className="flex flex-col items-center gap-1.5 text-[12px] text-muted-foreground font-medium text-center">
             <div>&copy; 2026 LAKSHYNiTi.</div>
-            <div className="flex items-center gap-1.5">
-              <img src="/brand-icon.png" alt="LWT Logo" className="w-3.5 h-3.5 rounded-sm object-contain" />
+            <div className="flex items-center gap-2">
+              <img src="/brand-icon.png" alt="LWT Logo" className="w-4 h-4 rounded-sm object-contain" />
               <span>LAKSHYNiTi LWT</span>
             </div>
           </div>
