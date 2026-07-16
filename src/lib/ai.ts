@@ -1,8 +1,10 @@
 import { prisma } from "./prisma";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 
-// Ensure the API Key is set in your .env file as GEMINI_API_KEY
-const ai = new GoogleGenAI({});
+// Ensure the API Key is set in your .env file as GROQ_API_KEY
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 export async function generateTextWithUsageTracking(userId: string, prompt: string) {
   try {
@@ -44,13 +46,13 @@ export async function generateTextWithUsageTracking(userId: string, prompt: stri
       return { success: false, error: errorMsg, isRateLimited: true };
     }
 
-    // 2. Call the Gemini API
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+    // 2. Call the Groq API
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama3-8b-8192", // Using a fast/standard groq model
     });
 
-    const text = response.text;
+    const text = chatCompletion.choices[0]?.message?.content || "";
 
     // 3. Increment Usage and Log
     await prisma.$transaction([
@@ -63,8 +65,6 @@ export async function generateTextWithUsageTracking(userId: string, prompt: stri
           userId,
           actionType: "TEXT_GENERATION",
           promptSnippet: prompt.substring(0, 150), // Store only a snippet for privacy/size
-          // Tokens are approximate if not provided directly by the SDK, 
-          // but Gemini does return token counts usually. We'll leave it null for now.
         },
       })
     ]);
@@ -78,7 +78,7 @@ export async function generateTextWithUsageTracking(userId: string, prompt: stri
     await prisma.systemErrorLog.create({
       data: {
         errorType: "AI_API_CRASH",
-        message: `AI API Crash: ${errorMessage}`,
+        message: `Groq AI API Crash: ${errorMessage}`,
         stackTrace: error instanceof Error ? error.stack : undefined,
       }
     });
