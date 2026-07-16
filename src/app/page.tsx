@@ -139,7 +139,7 @@ export default function LandingPage() {
       </motion.header>
 
       <main className="flex-1 pt-20">
-        <section className="relative px-4 pt-16 pb-32 sm:px-6 lg:px-8 sm:pt-32 sm:pb-40 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+        <section className="relative px-4 pt-16 pb-0 sm:px-6 lg:px-8 sm:pt-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
           {/* Animated Mesh Gradient Background */}
           <motion.div 
             animate={{ 
@@ -207,7 +207,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: "spring", stiffness: 40, damping: 20, delay: 0.4 }}
-            className="mx-auto mt-20 max-w-6xl sm:mt-28 perspective-[1200px]"
+            className="mx-auto mt-32 max-w-6xl sm:mt-40 perspective-[1200px]"
           >
             {/* Floating 3D Block */}
             <motion.div 
@@ -247,7 +247,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        <section id="features" className="container mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8 relative">
+        <section id="features" className="container mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8 sm:py-40 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-primary/5 blur-[120px] rounded-full -z-10" />
           
           <motion.div 
