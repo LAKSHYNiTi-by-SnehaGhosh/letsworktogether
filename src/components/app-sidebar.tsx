@@ -81,8 +81,7 @@ export function AppSidebar() {
       >
         <div className={`h-20 flex items-center px-4 shrink-0 relative group ${isCollapsed ? "justify-center" : "justify-between"}`}>
           <Link href="/dashboard" className={`flex items-center h-full w-full py-2 ${isCollapsed ? "justify-center" : "justify-start"} transition-opacity duration-200 ${isCollapsed ? "group-hover:opacity-0" : ""}`} onClick={() => setIsOpen(false)}>
-            <Image src="/main_icon.png" alt="LWT Workspace" width={120} height={50} className="w-[100px] h-auto object-contain dark:hidden" priority />
-            <Image src="/full_icon.png" alt="LWT Workspace" width={120} height={50} className="w-[100px] h-auto object-contain hidden dark:block" priority />
+            <Image src="/main_icon.png" alt="LWT Workspace" width={120} height={50} className={`${isCollapsed ? "w-12" : "w-[100px]"} h-auto object-contain transition-all duration-300`} priority />
           </Link>
           
           {isCollapsed ? (
