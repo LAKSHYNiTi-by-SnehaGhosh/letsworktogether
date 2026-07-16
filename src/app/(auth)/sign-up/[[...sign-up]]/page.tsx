@@ -18,7 +18,7 @@ export default function SignUpPage() {
       </ClerkLoading>
       <ClerkLoaded>
         <div className="relative custom-auth-card w-fit mx-auto flex flex-col items-center">
-          <SignUp />
+          <SignUp appearance={{ elements: { watermark: "hidden" } }} />
           <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-1 text-[11px] text-muted-foreground font-medium text-center z-50 pointer-events-none">
             <div>&copy; 2026 LAKSHYNiTi.</div>
             <div className="flex items-center gap-1.5">
