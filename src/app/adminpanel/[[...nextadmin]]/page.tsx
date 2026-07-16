@@ -35,11 +35,13 @@ export default async function AdminPage(props: any) {
   const searchParams = await props.searchParams;
 
   const nextAdminProps = await getNextAdminProps({
-    req: { params, searchParams },
+    params: params.nextadmin,
+    searchParams,
+    basePath: "/adminpanel",
+    apiBasePath: "/api/admin",
     prisma,
     options: {
       title: "LAKSHYNiTi Database Admin",
-      basePath: "/adminpanel",
     },
   });
 

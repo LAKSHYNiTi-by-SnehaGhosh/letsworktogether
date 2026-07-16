@@ -8,12 +8,11 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-key-please-change-in-production"
 );
 
-const { handler } = createHandler({
+const { run } = createHandler({
   apiBasePath: "/api/admin",
   prisma,
   options: {
     title: "LAKSHYNiTi Database Admin",
-    basePath: "/adminpanel",
   },
 });
 
@@ -34,20 +33,20 @@ async function checkAuth() {
 
 export async function GET(req: NextRequest, ctx: any) {
   if (!(await checkAuth())) return new NextResponse("Unauthorized", { status: 401 });
-  return handler(req, ctx);
+  return run(req, ctx);
 }
 
 export async function POST(req: NextRequest, ctx: any) {
   if (!(await checkAuth())) return new NextResponse("Unauthorized", { status: 401 });
-  return handler(req, ctx);
+  return run(req, ctx);
 }
 
 export async function DELETE(req: NextRequest, ctx: any) {
   if (!(await checkAuth())) return new NextResponse("Unauthorized", { status: 401 });
-  return handler(req, ctx);
+  return run(req, ctx);
 }
 
 export async function PUT(req: NextRequest, ctx: any) {
   if (!(await checkAuth())) return new NextResponse("Unauthorized", { status: 401 });
-  return handler(req, ctx);
+  return run(req, ctx);
 }
