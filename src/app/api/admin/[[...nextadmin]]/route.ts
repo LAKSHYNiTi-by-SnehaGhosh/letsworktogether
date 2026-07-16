@@ -13,6 +13,31 @@ const { run } = createHandler({
   prisma,
   options: {
     title: "LAKSHYNiTi Database Admin",
+    model: {
+      User: {
+        title: "Users & AI Quotas",
+        list: {
+          display: ["email", "subscriptionPlan", "aiUsageCount", "aiTotalLimit", "createdAt"],
+        },
+        edit: {
+          display: [
+            "email", "subscriptionPlan", "aiTotalLimit", "aiUsageCount", "aiUsageResetDate"
+          ],
+        }
+      },
+      AIUsageLog: {
+        title: "AI Usage History",
+        list: {
+          display: ["user", "actionType", "tokensUsed", "createdAt"],
+        },
+      },
+      SystemErrorLog: {
+        title: "System & AI Crashes",
+        list: {
+          display: ["errorType", "isResolved", "createdAt", "message"],
+        },
+      },
+    },
   },
 });
 

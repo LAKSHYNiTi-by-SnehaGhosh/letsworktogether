@@ -10,6 +10,12 @@ datasource db {
 // Users & Auth
 // ------------------------------------------------------
 
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
 model User {
   id           String    @id
   email        String    @unique
@@ -17,6 +23,8 @@ model User {
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
   deletedAt          DateTime? @map("deleted_at")
+  subscriptionPlan   SubscriptionPlan @default(FREE) @map("subscription_plan")
+  aiTotalLimit       Int       @default(50) @map("ai_total_limit")
   aiUsageCount       Int       @default(0) @map("ai_usage_count")
   aiUsageResetDate   DateTime? @map("ai_usage_reset_date")
 
@@ -33,6 +41,7 @@ model User {
   apiKeys         ApiKey[]
   attachments     Attachment[]
   documents       Document[]
+  aiUsageLogs     AIUsageLog[]
 
   @@map("users")
 }
@@ -520,4 +529,39 @@ model BackendAdmin {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("backend_admins")
+}
+
+// ------------------------------------------------------
+// AI & System Logging
+// ------------------------------------------------------
+
+model AIUsageLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id")
+  actionType    String   @map("action_type") // e.g., TEXT_GENERATION, IMAGE_GENERATION
+  tokensUsed    Int?     @map("tokens_used")
+  promptSnippet String?  @map("prompt_snippet") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("ai_usage_logs")
+}
+
+model SystemErrorLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  errorType   String   @map("error_type")
+  message     String   @db.Text
+  stackTrace  String?  @map("stack_trace") @db.Text
+  metadata    Json?
+  isResolved  Boolean  @default(false) @map("is_resolved")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([errorType])
+  @@index([isResolved])
+  @@index([createdAt])
+  @@map("system_error_logs")
 }
