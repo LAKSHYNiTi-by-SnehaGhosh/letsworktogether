@@ -314,7 +314,7 @@ export default function LandingPage() {
       
       <footer className="border-t border-border/20 py-12 bg-muted/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(99,102,241,0.03))] pointer-events-none" />
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-6 relative z-10">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 relative z-10">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
             <span className="text-sm font-medium text-muted-foreground">© 2026 LAKSHYNiTi.</span>
             <div className="hidden sm:block text-muted-foreground/30">•</div>
