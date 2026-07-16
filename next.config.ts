@@ -16,6 +16,11 @@ const cspHeader = `
 `;
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      '@prisma/client/runtime/library': './src/lib/prisma-runtime-mock.js',
+    },
+  },
   async headers() {
     return [
       {

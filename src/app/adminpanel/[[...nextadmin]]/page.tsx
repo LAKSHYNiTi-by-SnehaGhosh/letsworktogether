@@ -1,32 +1,39 @@
 import { NextAdmin } from "@premieroctet/next-admin";
-import { getPropsFromAppRouter } from "@premieroctet/next-admin/appRouter";
+import { getNextAdminProps } from "@premieroctet/next-admin/appRouter";
 import { prisma } from "@/lib/prisma";
-import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import "@premieroctet/next-admin/dist/styles.css";
+import { jwtVerify } from "jose";
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "super-secret-key-please-change-in-production"
+);
 
 async function requireAdmin() {
-  const user = await currentUser();
-  if (!user) {
-    redirect("/sign-in");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("lwt_admin_token")?.value;
+
+  if (!token) {
+    redirect("/adminpanel/login");
   }
-  
-  const email = user.emailAddresses[0]?.emailAddress;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  
-  if (adminEmail && email !== adminEmail) {
-    redirect("/dashboard");
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (!payload || !payload.adminId) {
+      redirect("/adminpanel/login");
+    }
+    return payload.adminId;
+  } catch (error) {
+    redirect("/adminpanel/login");
   }
 }
 
 export default async function AdminPage(props: any) {
   await requireAdmin();
 
-  // Handle Promise-based params for Next.js 15+ compatibility
   const params = await props.params;
   const searchParams = await props.searchParams;
 
-  const nextAdminProps = await getPropsFromAppRouter({
+  const nextAdminProps = await getNextAdminProps({
     req: { params, searchParams },
     prisma,
     options: {

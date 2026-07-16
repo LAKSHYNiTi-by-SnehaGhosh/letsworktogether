@@ -507,3 +507,17 @@ model Document {
   @@map("documents")
 }
 
+// ------------------------------------------------------
+// Backend Administration
+// ------------------------------------------------------
+
+model BackendAdmin {
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique @map("LWT_Admin_Username")
+  passwordHash String   @map("LWT_Admin_Passwd")
+  email        String   @unique
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("backend_admins")
+}

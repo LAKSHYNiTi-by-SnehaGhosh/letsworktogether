@@ -1,7 +1,12 @@
 import { createHandler } from "@premieroctet/next-admin/appHandler";
 import { prisma } from "@/lib/prisma";
-import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse, NextRequest } from "next/server";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "super-secret-key-please-change-in-production"
+);
 
 const { handler } = createHandler({
   apiBasePath: "/api/admin",
@@ -13,16 +18,18 @@ const { handler } = createHandler({
 });
 
 async function checkAuth() {
-  const user = await currentUser();
-  if (!user) return false;
-  
-  const email = user.emailAddresses[0]?.emailAddress;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  
-  if (adminEmail && email !== adminEmail) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("lwt_admin_token")?.value;
+
+  if (!token) return false;
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (!payload || !payload.adminId) return false;
+    return true;
+  } catch (error) {
     return false;
   }
-  return true;
 }
 
 export async function GET(req: NextRequest, ctx: any) {

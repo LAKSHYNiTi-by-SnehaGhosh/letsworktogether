@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@prisma/client/runtime/library": ["./src/lib/prisma-runtime-mock.js"]
     }
   },
   "include": [
