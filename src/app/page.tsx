@@ -314,16 +314,15 @@ export default function LandingPage() {
       
       <footer className="border-t border-border/20 py-12 bg-muted/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(99,102,241,0.03))] pointer-events-none" />
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-start gap-x-12 gap-y-4 relative z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 items-center gap-y-4 relative z-10">
+          <div className="flex justify-center lg:justify-start">
             <span className="text-sm font-medium text-muted-foreground">© 2026 LAKSHYNiTi.</span>
-            <div className="hidden sm:block text-muted-foreground/30">•</div>
-            <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-              <Image src="/full-icon.png" alt="LWT Icon" width={20} height={20} className="h-4 w-auto object-contain" />
-              <span>&quot;Let&apos;s Work Together&quot; is a service provided by LAKSHYNiTi.</span>
-            </div>
           </div>
-          <div className="flex gap-8 text-sm font-medium text-muted-foreground">
+          <div className="flex justify-center items-center gap-1.5 text-sm font-medium text-muted-foreground whitespace-nowrap">
+            <Image src="/full-icon.png" alt="LWT Icon" width={20} height={20} className="h-4 w-auto object-contain" />
+            <span>&quot;Let&apos;s Work Together&quot; is a service provided by LAKSHYNiTi.</span>
+          </div>
+          <div className="flex justify-center lg:justify-end gap-8 text-sm font-medium text-muted-foreground">
             <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
             <Link href="#" className="hover:text-primary transition-colors">Twitter</Link>
