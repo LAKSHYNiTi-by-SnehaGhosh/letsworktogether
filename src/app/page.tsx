@@ -139,7 +139,7 @@ export default function LandingPage() {
       </motion.header>
 
       <main className="flex-1 pt-20">
-        <section className="relative px-4 pt-16 pb-0 sm:px-6 lg:px-8 sm:pt-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+        <section className="relative px-4 pt-12 pb-0 sm:px-6 lg:px-8 sm:pt-16 overflow-hidden min-h-[80vh] flex flex-col justify-center">
           {/* Animated Mesh Gradient Background */}
           <motion.div 
             animate={{ 
@@ -156,7 +156,7 @@ export default function LandingPage() {
             initial="hidden"
             animate="show"
             style={{ scale: heroScale }}
-            className="container mx-auto max-w-5xl text-center relative z-10"
+            className="container mx-auto max-w-5xl text-center relative z-10 -mt-10 sm:-mt-16"
           >
             <motion.div variants={itemVariants}>
               <h1 className="text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl leading-[1.1] text-foreground/90 max-w-4xl mx-auto">
