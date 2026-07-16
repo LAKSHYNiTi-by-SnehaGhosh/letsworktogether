@@ -161,3 +161,8 @@ div[style*="z-index: 99999"][style*="position: fixed"] {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Create space at the bottom of the Clerk card for our custom footer */
+.custom-auth-card .cl-card {
+  padding-bottom: 3.5rem !important;
+}
