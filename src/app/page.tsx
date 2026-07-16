@@ -58,8 +58,8 @@ export default function LandingPage() {
 
   // Smooth scroll parallax
   const { scrollYProgress, scrollY } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 400]);
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 0.85]);
   const boxY = useTransform(scrollYProgress, [0, 1], [0, -150]);
 
   const backgroundTemplate = useMotionTemplate`radial-gradient(600px circle at ${springX}px ${springY}px, rgba(99,102,241,0.08), transparent 40%)`;
@@ -157,7 +157,7 @@ export default function LandingPage() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            style={{ y: heroY, opacity: heroOpacity }}
+            style={{ y: heroY, scale: heroScale }}
             className="container mx-auto max-w-5xl text-center relative z-10"
           >
             <motion.div variants={itemVariants}>
