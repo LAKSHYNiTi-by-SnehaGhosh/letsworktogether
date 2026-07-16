@@ -146,12 +146,15 @@
 
 /* Hide Clerk's development mode badge and default watermark */
 .cl-internal-b3al4t,
+.cl-internal-b3al6g,
 .cl-devMode,
 .cl-watermark,
 .cl-poweredBy,
 a[href*="clerk.com"],
 a[href*="clerk.dev"],
 div[class*="cl-internal-"] > a[href*="clerk"],
+div:has(> a[href*="clerk.com"]),
+div:has(> a[href*="clerk.dev"]),
 div[style*="z-index: 99999"][style*="position: fixed"] {
   display: none !important;
   opacity: 0 !important;
