@@ -20,14 +20,41 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
     if (!email) return
     setLoading(true)
     setError("")
+    
     try {
-      await addDoc(collection(db, "waitlist"), {
-        email,
-        createdAt: serverTimestamp(),
-      })
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+      
+      const res = await fetch(
+        "https://firestore.googleapis.com/v1/projects/waitlistlakshyniti/databases/(default)/documents/waitlist?key=AIzaSyAV4CHTX5f1FqY2yN2j4397ICHdYz3XFw0",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fields: {
+              email: { stringValue: email },
+              createdAt: { timestampValue: new Date().toISOString() }
+            }
+          }),
+          signal: controller.signal
+        }
+      )
+      
+      clearTimeout(timeoutId)
+      
+      if (!res.ok) {
+        throw new Error("Failed to submit")
+      }
+      
       setSuccess(true)
     } catch (err: any) {
-      setError(err.message || "Failed to join waitlist. Please try again.")
+      if (err.name === 'AbortError') {
+        setError("Request timed out. Please check your connection and try again.")
+      } else {
+        setError("Failed to join waitlist. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
