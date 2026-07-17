@@ -16,8 +16,7 @@ import { Button } from "@/components/ui/button";
 const sidebarLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
-  { href: "/dashboard/teams", label: "Teams", icon: Users },
-  { href: "/dashboard/mentor", label: "AI Mentor", icon: Sparkles },
+  { href: "/dashboard/team", label: "Teams", icon: Users },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart },
@@ -119,15 +118,21 @@ export function AppSidebar() {
                 <span className="text-xs font-semibold text-foreground/60 uppercase tracking-wider">Quick Actions</span>
               </div>
               <div className="space-y-2">
-                <Button className="w-full justify-start gap-2 bg-lwt-blue hover:bg-lwt-blue/90 text-white rounded-lg h-10 shadow-sm border-0">
-                  <Plus size={16} /> Create Project
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
-                  <UserPlus size={16} /> Join Project
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
-                  <Bot size={16} /> AI Project Planner
-                </Button>
+                <Link href="/dashboard/projects" className="block w-full">
+                  <Button className="w-full justify-start gap-2 bg-lwt-blue hover:bg-lwt-blue/90 text-white rounded-lg h-10 shadow-sm border-0">
+                    <Plus size={16} /> Create Project
+                  </Button>
+                </Link>
+                <Link href="/dashboard/projects" className="block w-full">
+                  <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
+                    <UserPlus size={16} /> Join Project
+                  </Button>
+                </Link>
+                <Link href="/dashboard/projects" className="block w-full">
+                  <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
+                    <Bot size={16} /> AI Project Planner
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
