@@ -51,6 +51,10 @@ export default function AboutPage() {
           <div className="flex items-center gap-2 md:gap-4">
             <ModeToggle />
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
+              <Button className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Early Access</Button>
+            </motion.div>
+            {/*
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
               <Link href="/sign-in">
                 <Button variant="ghost" className="inline-flex text-foreground hover:text-primary hover:bg-muted transition-colors text-sm px-4 py-2 h-9 rounded-full">Sign In</Button>
               </Link>
@@ -60,6 +64,7 @@ export default function AboutPage() {
                 <Button className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Started</Button>
               </Link>
             </motion.div>
+            */}
             <button 
               className="md:hidden p-2 text-foreground/70 hover:text-foreground transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -84,12 +89,15 @@ export default function AboutPage() {
                 <Link href="/about" className="text-foreground/70 hover:text-foreground transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               </nav>
               <div className="flex flex-col gap-3 pt-6 border-t border-border">
+                <Button className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>Get Early Access</Button>
+                {/*
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button variant="ghost" className="w-full text-foreground hover:text-primary hover:bg-muted transition-colors py-6 text-lg rounded-xl">Sign In</Button>
                 </Link>
                 <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl">Get Started</Button>
                 </Link>
+                */}
               </div>
             </motion.div>
           )}
@@ -203,11 +211,16 @@ export default function AboutPage() {
                 Join thousands of students and developers who are accelerating their careers through real-world project execution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="w-full sm:w-auto rounded-full bg-white text-primary hover:bg-white/90 font-bold px-8 h-14 text-lg">
+                  Join the Waiting List
+                </Button>
+                {/*
                 <Link href="/sign-up">
                   <Button size="lg" className="w-full sm:w-auto rounded-full bg-white text-primary hover:bg-white/90 font-bold px-8 h-14 text-lg">
                     Get Started for Free
                   </Button>
                 </Link>
+                */}
                 <Link href="/pricing">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full border-white text-black hover:bg-white/10 font-bold px-8 h-14 text-lg">
                     View Pricing
