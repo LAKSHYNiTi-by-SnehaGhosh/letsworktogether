@@ -8,6 +8,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+    }
+
     // Call Firestore REST API directly from the server to bypass client-side CORS or API key Referrer restrictions
     const res = await fetch(
       "https://firestore.googleapis.com/v1/projects/lwtwaitinglakshyniti/databases/(default)/documents/waitlist?key=AIzaSyBMheEPPdp3gZ-Qfr1fgnGbLph9omfpN64",

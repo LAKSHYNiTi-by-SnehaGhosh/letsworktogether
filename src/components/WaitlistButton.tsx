@@ -17,7 +17,17 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email) {
+      setError("Email is required.")
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address (e.g. name@gmail.com).")
+      return
+    }
+
     setLoading(true)
     setError("")
     
