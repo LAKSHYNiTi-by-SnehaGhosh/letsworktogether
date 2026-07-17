@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { WaitlistButton } from "@/components/WaitlistButton";
 
 const navVariants = {
   hidden: { opacity: 0, y: -20 },
@@ -44,7 +45,7 @@ export default function PricingPage() {
           <div className="flex items-center gap-2 md:gap-4">
             <ModeToggle />
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
-              <Button className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Early Access</Button>
+              <WaitlistButton className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Early Access</WaitlistButton>
             </motion.div>
             {/*
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
@@ -82,7 +83,7 @@ export default function PricingPage() {
                 <Link href="/about" className="text-foreground/70 hover:text-foreground transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               </nav>
               <div className="flex flex-col gap-3 pt-6 border-t border-border">
-                <Button className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>Get Early Access</Button>
+                <WaitlistButton className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>Get Early Access</WaitlistButton>
                 {/*
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button variant="ghost" className="w-full text-foreground hover:text-primary hover:bg-muted transition-colors py-6 text-lg rounded-xl">Sign In</Button>
@@ -141,7 +142,7 @@ export default function PricingPage() {
                 <span className="text-muted-foreground ml-2">Forever</span>
               </div>
               
-              <Button className="w-full py-6 rounded-xl mb-10" variant="outline">Join the Waiting List</Button>
+              <WaitlistButton className="w-full py-6 rounded-xl mb-10" variant="outline">Join the Waiting List</WaitlistButton>
               {/*
               <Link href="/sign-up" className="block mb-10">
                 <Button className="w-full py-6 rounded-xl" variant="outline">Start for Free</Button>
@@ -210,7 +211,7 @@ export default function PricingPage() {
                   <span className="text-muted-foreground ml-2">/ {billingCycle === "half-yearly" ? "6 months" : billingCycle.replace("ly", "")}</span>
                 </div>
                 
-                <Button className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white mb-10">Join the Waiting List</Button>
+                <WaitlistButton className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white mb-10">Join the Waiting List</WaitlistButton>
                 {/*
                 <Link href="/sign-up" className="block mb-10">
                   <Button className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white">Upgrade to Pro</Button>
