@@ -25,22 +25,14 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
       
-      const res = await fetch(
-        "https://firestore.googleapis.com/v1/projects/waitlistlakshyniti/databases/(default)/documents/waitlist?key=AIzaSyAV4CHTX5f1FqY2yN2j4397ICHdYz3XFw0",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fields: {
-              email: { stringValue: email },
-              createdAt: { timestampValue: new Date().toISOString() }
-            }
-          }),
-          signal: controller.signal
-        }
-      )
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        signal: controller.signal
+      })
       
       clearTimeout(timeoutId)
       
