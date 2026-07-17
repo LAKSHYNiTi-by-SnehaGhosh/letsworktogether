@@ -310,6 +310,33 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+
+        <section id="about" className="container mx-auto max-w-7xl px-4 pb-32 sm:px-6 lg:px-8 sm:pb-40 relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 80, damping: 20 }}
+            className="rounded-3xl border border-border/60 bg-card/30 backdrop-blur-md p-10 sm:p-16 shadow-2xl relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-50 transition-opacity duration-500" />
+            
+            <div className="relative z-10 max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8 flex items-center justify-center gap-3">
+                <Image src="/brand-icon.png" alt="LWT Icon" width={32} height={32} className="w-8 h-8 object-contain" />
+                About LWT
+              </h2>
+              <div className="space-y-6 text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed">
+                <p>
+                  <span className="text-foreground">Let's Work Together (LWT)</span> is an AI-powered Professional Execution Platform that bridges the gap between education and industry by enabling users to learn through real-world project execution.
+                </p>
+                <p>
+                  By combining AI guidance, collaborative teamwork, and industry-inspired workflows, LWT helps individuals build practical experience, strengthen professional skills, and create portfolios that reflect how modern products are developed.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </section>
       </main>
       
       <footer className="border-t border-border/20 py-12 bg-muted/10 relative overflow-hidden">
