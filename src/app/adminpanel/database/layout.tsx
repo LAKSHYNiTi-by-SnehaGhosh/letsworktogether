@@ -62,6 +62,13 @@ export default async function AdminDatabaseLayout({
             <Zap className="w-4 h-4" />
             AI Quotas & Limits
           </Link>
+          <Link
+            href="/adminpanel/database/marketplace"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <Database className="w-4 h-4" />
+            Marketplace Approvals
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-white/10">

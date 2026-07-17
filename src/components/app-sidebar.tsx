@@ -23,6 +23,8 @@ const sidebarLinks = [
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart },
   { href: "/dashboard/portfolio", label: "Portfolio", icon: Briefcase },
   { href: "/dashboard/companies", label: "Companies", icon: Building },
+  { href: "/dashboard/mentors", label: "Mentor Market", icon: Users },
+  { href: "/dashboard/billing", label: "Billing", icon: Briefcase },
 ];
 
 export function AppSidebar() {

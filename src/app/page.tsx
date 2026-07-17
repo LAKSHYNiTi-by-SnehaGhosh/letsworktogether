@@ -85,9 +85,9 @@ export default function LandingPage() {
             <Image src="/full_icon.png" alt="LWT Workspace" width={400} height={280} className="w-[180px] sm:w-[240px] md:w-[280px] lg:w-[320px] h-auto object-contain translate-y-[6px]" priority />
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link href="#features" className="text-white/70 hover:text-white transition-colors">Features</Link>
-            <Link href="#pricing" className="text-white/70 hover:text-white transition-colors">Pricing</Link>
-            <Link href="#about" className="text-white/70 hover:text-white transition-colors">About</Link>
+            <Link href="/#features" className="text-white/70 hover:text-white transition-colors">Features</Link>
+            <Link href="/pricing" className="text-white/70 hover:text-white transition-colors">Pricing</Link>
+            <Link href="/about" className="text-white/70 hover:text-white transition-colors">About</Link>
           </nav>
           <div className="flex items-center gap-2 md:gap-4">
             <ModeToggle />
@@ -121,9 +121,9 @@ export default function LandingPage() {
               className="md:hidden border-t border-white/10 bg-[#000211]/90 backdrop-blur-3xl text-white px-4 py-6 space-y-6 overflow-hidden shadow-2xl"
             >
               <nav className="flex flex-col gap-6">
-                <Link href="#features" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>Features</Link>
-                <Link href="#pricing" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>Pricing</Link>
-                <Link href="#about" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+                <Link href="/#features" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>Features</Link>
+                <Link href="/pricing" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>Pricing</Link>
+                <Link href="/about" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               </nav>
               <div className="flex flex-col gap-3 pt-6 border-t border-white/10">
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
@@ -311,32 +311,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="about" className="container mx-auto max-w-7xl px-4 pb-32 sm:px-6 lg:px-8 sm:pb-40 relative">
-          <motion.div 
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ type: "spring", stiffness: 80, damping: 20 }}
-            className="rounded-3xl border border-border/60 bg-card/30 backdrop-blur-md p-10 sm:p-16 shadow-2xl relative overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-50 transition-opacity duration-500" />
-            
-            <div className="relative z-10 max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8 flex items-center justify-center gap-3">
-                <Image src="/brand-icon.png" alt="LWT Icon" width={32} height={32} className="w-8 h-8 object-contain" />
-                About LWT
-              </h2>
-              <div className="space-y-6 text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed">
-                <p>
-                  <span className="text-foreground">Let's Work Together (LWT)</span> is an AI-powered Professional Execution Platform that bridges the gap between education and industry by enabling users to learn through real-world project execution.
-                </p>
-                <p>
-                  By combining AI guidance, collaborative teamwork, and industry-inspired workflows, LWT helps individuals build practical experience, strengthen professional skills, and create portfolios that reflect how modern products are developed.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </section>
       </main>
       
       <footer className="border-t border-border/20 py-12 bg-muted/10 relative overflow-hidden">

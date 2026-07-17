@@ -43,6 +43,13 @@ model User {
   documents       Document[]
   aiUsageLogs     AIUsageLog[]
 
+  // New relations
+  subscription    Subscription?
+  mentorProfile   MentorProfile?
+  mentorRequests  MentorRequest[] @relation("StudentRequests")
+  mentorReviews   MentorReview[]  @relation("StudentReviews")
+  mentorTransactions MentorTransaction[] @relation("StudentTransactions")
+
   @@map("users")
 }
 
@@ -305,6 +312,7 @@ model Project {
   milestones   Milestone[]
   members      ProjectMember[]
   documents    Document[]
+  mentorRequests MentorRequest[]
 
   @@index([organizationId])
   @@index([clientId])
@@ -564,4 +572,176 @@ model SystemErrorLog {
   @@index([isResolved])
   @@index([createdAt])
   @@map("system_error_logs")
+}
+
+// ------------------------------------------------------
+// Subscriptions & Billing
+// ------------------------------------------------------
+
+model Plan {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @unique
+  stripeProductId  String?  @map("stripe_product_id")
+  priceMonthly     Decimal? @map("price_monthly") @db.Decimal(10,2)
+  priceYearly      Decimal? @map("price_yearly") @db.Decimal(10,2)
+  features         Json?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  subscriptions    Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @map("user_id")
+  planId             String   @map("plan_id") @db.Uuid
+  status             String   // ACTIVE, CANCELED, PAST_DUE
+  stripeSubId        String?  @unique @map("stripe_sub_id")
+  currentPeriodStart DateTime @map("current_period_start")
+  currentPeriodEnd   DateTime @map("current_period_end")
+  cancelAtPeriodEnd  Boolean  @default(false) @map("cancel_at_period_end")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+// ------------------------------------------------------
+// Mentor Marketplace
+// ------------------------------------------------------
+
+model MentorProfile {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @unique @map("user_id")
+  title             String
+  bio               String?  @db.Text
+  skills            String[]
+  yearsOfExperience Int      @map("years_of_experience")
+  hourlyRate        Decimal  @map("hourly_rate") @db.Decimal(10,2)
+  portfolioUrl      String?  @map("portfolio_url")
+  linkedinUrl       String?  @map("linkedin_url")
+  githubUrl         String?  @map("github_url")
+  isVerified        Boolean  @default(false) @map("is_verified")
+  approvalStatus    String   @default("PENDING") @map("approval_status") // PENDING, APPROVED, REJECTED
+  rating            Decimal? @db.Decimal(3,2)
+  totalReviews      Int      @default(0) @map("total_reviews")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests MentorRequest[]
+  wallet   Wallet?
+
+  @@index([approvalStatus])
+  @@map("mentor_profiles")
+}
+
+model MentorRequest {
+  id                String   @id @default(uuid()) @db.Uuid
+  studentId         String   @map("student_id")
+  mentorId          String   @map("mentor_id") @db.Uuid
+  projectId         String?  @map("project_id") @db.Uuid
+  problemStatement  String   @map("problem_statement") @db.Text
+  requiredExpertise String[] @map("required_expertise")
+  budget            Decimal  @db.Decimal(10,2)
+  status            String   @default("PENDING") // PENDING, ACCEPTED, REJECTED, COMPLETED
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  student User          @relation("StudentRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  mentor  MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  project Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  session MentorSession?
+
+  @@index([studentId])
+  @@index([mentorId])
+  @@map("mentor_requests")
+}
+
+model MentorSession {
+  id          String    @id @default(uuid()) @db.Uuid
+  requestId   String    @unique @map("request_id") @db.Uuid
+  meetingLink String?   @map("meeting_link")
+  startTime   DateTime? @map("start_time")
+  endTime     DateTime? @map("end_time")
+  status      String    @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELED
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  request MentorRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  review  MentorReview?
+
+  @@map("mentor_sessions")
+}
+
+model MentorReview {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @unique @map("session_id") @db.Uuid
+  studentId String   @map("student_id")
+  mentorId  String   @map("mentor_id")
+  rating    Int
+  feedback  String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session MentorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student User          @relation("StudentReviews", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([mentorId])
+  @@map("mentor_reviews")
+}
+
+// ------------------------------------------------------
+// Transactions & Wallets
+// ------------------------------------------------------
+
+model MentorTransaction {
+  id             String   @id @default(uuid()) @db.Uuid
+  studentId      String   @map("student_id")
+  mentorId       String   @map("mentor_id") @db.Uuid
+  amount         Decimal  @db.Decimal(10,2)
+  platformFee    Decimal  @map("platform_fee") @db.Decimal(10,2)
+  mentorEarnings Decimal  @map("mentor_earnings") @db.Decimal(10,2)
+  status         String   // PENDING, COMPLETED, FAILED, REFUNDED
+  stripePaymentId String? @unique @map("stripe_payment_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  student User          @relation("StudentTransactions", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([mentorId])
+  @@map("mentor_transactions")
+}
+
+model Wallet {
+  id          String   @id @default(uuid()) @db.Uuid
+  mentorId    String   @unique @map("mentor_id") @db.Uuid
+  balance     Decimal  @default(0) @db.Decimal(10,2)
+  totalEarned Decimal  @default(0) @map("total_earned") @db.Decimal(10,2)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  withdrawals Withdrawal[]
+
+  @@map("wallets")
+}
+
+model Withdrawal {
+  id          String    @id @default(uuid()) @db.Uuid
+  walletId    String    @map("wallet_id") @db.Uuid
+  amount      Decimal   @db.Decimal(10,2)
+  status      String    @default("PENDING") // PENDING, PROCESSED, FAILED
+  requestedAt DateTime  @default(now()) @map("requested_at")
+  processedAt DateTime? @map("processed_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@map("withdrawals")
 }
