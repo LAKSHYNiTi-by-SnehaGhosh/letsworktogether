@@ -27,7 +27,7 @@ export default async function CalendarPage() {
         </div>
         <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
         <p className="text-muted-foreground max-w-md mx-auto mb-6">
-          The calendar view is currently under development. Soon you'll be able to see milestones for your {user.projectMemberships.length} active projects here.
+          The calendar view is currently under development. Soon you&apos;ll be able to see milestones for your {user.projectMemberships.length} active projects here.
         </p>
         
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-full text-sm font-medium">

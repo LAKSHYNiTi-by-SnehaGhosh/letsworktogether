@@ -96,14 +96,10 @@ export default function AboutPage() {
                 <Image src="/brand-icon.png" alt="LWT Icon" width={40} height={40} className="w-10 h-10 object-contain" />
                 About LWT
               </h1>
-              <div className="space-y-6 text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed">
-                <p>
-                  <span className="text-foreground">Let's Work Together (LWT)</span> is an AI-powered Professional Execution Platform that bridges the gap between education and industry by enabling users to learn through real-world project execution.
-                </p>
-                <p>
-                  By combining AI guidance, collaborative teamwork, and industry-inspired workflows, LWT helps individuals build practical experience, strengthen professional skills, and create portfolios that reflect how modern products are developed.
-                </p>
-              </div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">What is Let&apos;s Work Together?</h2>
+              <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+                Let&apos;s Work Together (LWT) is an AI-powered Professional Execution Platform that bridges the gap between education and industry by enabling users to learn through real-world project execution. By combining AI guidance, collaborative teamwork, and industry-inspired workflows, LWT helps individuals build practical experience, strengthen professional skills, and create portfolios that reflect how modern products are developed.
+              </p>
             </div>
           </motion.div>
         </section>

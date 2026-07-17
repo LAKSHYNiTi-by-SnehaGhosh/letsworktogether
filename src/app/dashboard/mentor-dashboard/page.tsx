@@ -37,7 +37,7 @@ export default async function MentorDashboardPage() {
         </div>
         <h1 className="text-2xl font-bold mb-2">Application Pending</h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
-          Your application to become a verified mentor is currently under review by our team. We will notify you once it's approved.
+          Your application to become a verified mentor is currently under review by our team. We will notify you once it&apos;s approved.
         </p>
       </div>
     );
@@ -64,7 +64,7 @@ export default async function MentorDashboardPage() {
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Mentor Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your incoming requests and earnings.</p>
+        <p className="text-muted-foreground mt-1">Review student&apos;s requests and manage your earnings.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
