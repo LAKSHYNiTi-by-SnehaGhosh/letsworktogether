@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     // Call Firestore REST API directly from the server to bypass client-side CORS or API key Referrer restrictions
     const res = await fetch(
-      "https://firestore.googleapis.com/v1/projects/waitlistlakshyniti/databases/(default)/documents/waitlist?key=AIzaSyAV4CHTX5f1FqY2yN2j4397ICHdYz3XFw0",
+      "https://firestore.googleapis.com/v1/projects/lwtwaitinglakshyniti/databases/(default)/documents/waitlist?key=AIzaSyBMheEPPdp3gZ-Qfr1fgnGbLph9omfpN64",
       {
         method: "POST",
         headers: {

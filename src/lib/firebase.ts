@@ -3,13 +3,13 @@ import { getFirestore } from "firebase/firestore";
 // import { getAnalytics } from "firebase/analytics"; // Analytics is browser only, might need check if window defined
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAV4CHTX5f1FqY2yN2j4397ICHdYz3XFw0",
-  authDomain: "waitlistlakshyniti.firebaseapp.com",
-  projectId: "waitlistlakshyniti",
-  storageBucket: "waitlistlakshyniti.firebasestorage.app",
-  messagingSenderId: "1064363762498",
-  appId: "1:1064363762498:web:7de8c18d1bcb61d0011edb",
-  measurementId: "G-HFE1EWEV9Q"
+  apiKey: "AIzaSyBMheEPPdp3gZ-Qfr1fgnGbLph9omfpN64",
+  authDomain: "lwtwaitinglakshyniti.firebaseapp.com",
+  projectId: "lwtwaitinglakshyniti",
+  storageBucket: "lwtwaitinglakshyniti.firebasestorage.app",
+  messagingSenderId: "294410180572",
+  appId: "1:294410180572:web:5f600aeabf7d8ea94ca119",
+  measurementId: "G-FPHF69KME7"
 };
 
 // Initialize Firebase
