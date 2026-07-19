@@ -1,54 +1,54 @@
 # Project Report: Let's Work Together (LWT)
 
-এই রিপোর্টটিতে LWT (Let's Work Together) প্রজেক্টের বর্তমান অবস্থা, ফিচার্স, ল্যাঙ্গুয়েজ এবং অন্যান্য গুরুত্বপূর্ণ বিষয়ের বিস্তারিত বিবরণ দেওয়া হলো।
+This report provides a detailed overview of the LWT (Let's Work Together) project's current state, existing features, technology stack, and other key details.
 
-## 1. Ki Ki Features Ache (বর্তমান ফিচারসমূহ)
-বর্তমানে প্রজেক্টটিতে নিচের মূল ফিচারগুলো রয়েছে:
-- **AI Workforce:** প্রজেক্টটিতে Role-specific AI পার্সোনালিটি (যেমন AI CEO, PM, Tech Lead) রয়েছে যারা কোড এবং ডিজাইন ইভ্যালুয়েট করে।
-- **Enterprise Emulation:** ইউজাররা বিভিন্ন simulated অর্গানাইজেশনে (SaaS, FinTech, Healthcare) জয়েন করতে পারে।
-- **Sprint & Task Execution:** প্রফেশনাল ওয়ার্কফ্লো, স্ট্যান্ডআপ এবং পারফরম্যান্স ট্র্যাকিং সিস্টেম।
-- **Portfolio Generation:** রিয়েল এক্সিকিউশন মেট্রিক্সের উপর ভিত্তি করে অটোমেটেড পোর্টফোলিও তৈরি করা।
-- **Authentication & Security:** Clerk Auth এর মাধ্যমে সিকিউরড লগইন/রেজিস্ট্রেশন এবং Enterprise Role-Based Access Control (RBAC)।
-- **Multi-Tenancy:** Organization এবং Team ম্যানেজমেন্ট।
-- **3D Visuals:** Three.js এবং React Three Fiber দিয়ে ডাইনামিক 3D এনভায়রনমেন্ট।
-- **Database & Storage:** PostgreSQL (Neon) ডেটাবেস এবং Cloudflare R2 / AWS S3 স্টোরেজ ইন্টিগ্রেশন।
+## 1. Existing Features
+The platform currently includes the following core features:
+- **AI Workforce:** Role-specific AI personalities (e.g., AI CEO, PM, Tech Lead) that evaluate code, design, and overall execution.
+- **Enterprise Emulation:** Users can join simulated organizations across different sectors (SaaS, FinTech, Healthcare, etc.).
+- **Sprint & Task Execution:** Professional workflows, daily standups, and performance tracking systems.
+- **Portfolio Generation:** Automated generation of professional portfolios based on real execution metrics.
+- **Authentication & Security:** Secure login/registration via Clerk Auth with robust Enterprise Role-Based Access Control (RBAC).
+- **Multi-Tenancy:** Comprehensive Organization and Team management architecture.
+- **3D Visuals:** Dynamic 3D environments rendered using Three.js and React Three Fiber.
+- **Database & Storage:** PostgreSQL database (Neon Serverless) and seamless file storage integration with Cloudflare R2 / AWS S3.
 
-## 2. Ki Ki Features Deoya Jete Pare (ভবিষ্যতে যা যোগ করা যেতে পারে)
-ভবিষ্যতে প্ল্যাটফর্মটিকে আরও উন্নত করতে নিচের ফিচারগুলো অ্যাড করা যেতে পারে:
-- **Real-time Collaboration:** WebSockets ব্যবহার করে রিয়েল-টাইম চ্যাট এবং কোলাবোরেশন।
-- **GitHub / GitLab Integration:** সরাসরি রিপোজিটরি থেকে কোড ফেচ করে AI Code Review করা।
-- **Advanced Analytics Dashboard:** ইউজারদের পারফরম্যান্স এবং স্প্রিন্ট প্রগ্রেস দেখার জন্য ডিটেইলড ড্যাশবোর্ড।
-- **Payment Gateway / Billing:** Stripe বা অন্য কোনো পেমেন্ট গেটওয়ে ইন্টিগ্রেট করে সাবস্ক্রিপশন মডেল (Pro/Enterprise) চালু করা।
-- **Mobile Application:** React Native বা Expo দিয়ে নেটিভ মোবাইল অ্যাপ তৈরি করা।
-- **CI/CD Pipeline Visualizer:** ইউজাররা কীভাবে কোড ডেপ্লয় করছে তার ভিজ্যুয়াল রিপ্রেজেন্টেশন।
+## 2. Potential Future Features
+To further enhance the platform, the following features could be implemented in the future:
+- **Real-time Collaboration:** Real-time chat and collaborative workspaces using WebSockets.
+- **GitHub / GitLab Integration:** Direct repository integration for AI Code Reviews and automated feedback.
+- **Advanced Analytics Dashboard:** Detailed analytics for tracking user performance and sprint progress.
+- **Payment Gateway / Billing:** Subscription models (Pro/Enterprise tiers) integrated with Stripe or a similar payment gateway.
+- **Mobile Application:** A native mobile application built with React Native or Expo.
+- **CI/CD Pipeline Visualizer:** Visual representation of user code deployments and CI/CD pipelines.
 
-## 3. Ki Ki Failures (বর্তমান ত্রুটি বা ফেইলিওর)
-সম্প্রতি অ্যাপটি সফলভাবে পাস করেছে। তবে কিছু সাধারণ ইস্যু যা আগে ফেস করা হয়েছিল এবং বর্তমান অবস্থায় থাকতে পারে:
-- **Next.js 15+ Async Params:** Next.js 15+ এ অ্যাপ রাউটারের `params` Promise-এ পরিবর্তিত হওয়ার কারণে কিছু টাইপস্ক্রিপ্ট এরর ছিল, যা ফিক্স করা হয়েছে (যেমন `await params` ব্যবহার করে)।
-- **Prisma Schema Mismatches:** মাল্টি-টিন্যান্ট আর্কিটেকচার সেটআপের সময় কিছু টাইপিং ইস্যু ছিল যা আপডেট করা হয়েছে।
-- বর্তমানে মেজর কোনো ফেইলিওর নেই, তবে 3D কম্পোনেন্ট বা থার্ড-পার্টি লাইব্রেরি (Framer Motion) এর কিছু minor strict-type ওয়ার্নিং বা ESLint এরর থাকতে পারে।
+## 3. Current Failures or Issues
+The application has recently passed the build step (`npm run build`) successfully. However, minor technical debt or past issues that may still surface include:
+- **Next.js 15+ Async Params:** Transitioning to Next.js 15+ required changing the App Router's `params` to a Promise format. While mostly fixed (`await params`), some older components might still need alignment.
+- **Prisma Schema Mismatches:** Typing issues during the initial multi-tenant architecture setup were resolved, but database migrations must be carefully managed going forward.
+- Currently, there are no major breaking failures, though minor strict-type warnings or ESLint errors (especially related to Framer Motion or Three.js) may appear during development.
 
-## 4. Which Languages are Used (ব্যবহৃত ভাষাসমূহ)
-এই প্রজেক্টটি একটি মডার্ন ফুল-স্ট্যাক অ্যাপ। এখানে ব্যবহৃত প্রধান ল্যাঙ্গুয়েজ এবং টেকনোলজিগুলো হলো:
-- **TypeScript:** মূল ল্যাঙ্গুয়েজ হিসেবে ব্যবহৃত হয়েছে (স্ট্রং টাইপিং এর জন্য)।
-- **JavaScript:** কিছু কনফিগারেশন এবং স্ক্রিপ্টিং-এ।
-- **HTML / CSS:** Tailwind CSS (v4) এর মাধ্যমে স্টাইলিং এবং JSX/TSX ফাইলে স্ট্রাকচারিং।
-- **SQL:** ডাটাবেস লেভেলে (PostgreSQL/Prisma)।
+## 4. Languages and Technologies Used
+The project is a modern, enterprise-grade full-stack application built using:
+- **TypeScript:** The primary language, ensuring strict typing and reducing runtime errors.
+- **JavaScript:** Used in certain configurations and scripting files.
+- **HTML/CSS:** Tailwind CSS (v4) for styling and JSX/TSX for UI structuring.
+- **SQL:** At the database level (PostgreSQL interacting via Prisma).
 
-## 5. How Does Workflow Works (ওয়ার্কফ্লো যেভাবে কাজ করে)
-LWT এর ওয়ার্কফ্লো মূলত একটি রিয়েল-ওয়ার্ল্ড কর্পোরেট পরিবেশকে সিমুলেট করে:
-1. **Onboarding:** ইউজার Clerk এর মাধ্যমে অথেন্টিকেট করে এবং একটি AI-simulated কোম্পানিতে জয়েন করে।
-2. **Team Setup:** ইউজার তার AI কো-ওয়ার্কারদের (Tech Lead, PM) সাথে ইন্টারঅ্যাক্ট করে।
-3. **Task Assignment:** AI PM ইউজারকে স্প্রিন্ট এবং টাস্ক অ্যাসাইন করে। 
-4. **Execution:** ইউজার টাস্ক কমপ্লিট করে (কোড লেখা বা ডিজাইন তৈরি করা)।
-5. **Review:** AI টেক লিড ইউজারের কাজের উপর ফিডব্যাক দেয় এবং কোড রিভিউ করে।
-6. **Completion:** কাজ শেষ হলে তা পোর্টফোলিওতে অটোমেটিকভাবে অ্যাড হয়ে যায়।
-পুরো সিস্টেমটি Next.js Server Components, Prisma ORM এবং Gemini/OpenAI API (Groq) এর সাহায্যে রিয়েল-টাইমে ডেটা প্রসেস করে।
+## 5. Workflow Mechanism
+The LWT workflow is designed to simulate a real-world corporate environment:
+1. **Onboarding:** The user authenticates via Clerk and joins an AI-simulated company.
+2. **Team Setup:** The user interacts with their AI co-workers (e.g., Tech Lead, PM) to understand the product.
+3. **Task Assignment:** The AI PM assigns sprints and specific tasks to the user. 
+4. **Execution:** The user completes the assigned tasks, whether writing code or creating designs.
+5. **Review:** The AI Tech Lead provides constructive feedback and performs a thorough code review.
+6. **Completion:** Upon successful review, the completed work is automatically added to the user's professional portfolio.
+The entire system processes data in real-time leveraging Next.js Server Components, Prisma ORM, and the Groq/Gemini APIs.
 
-## 6. .env Files Environmental Variables (এনভায়রনমেন্ট ভেরিয়েবলসমূহ)
-প্রজেক্টটি সঠিকভাবে রান করার জন্য `.env.local` এবং `.env` ফাইলে নিচের ভেরিয়েবলগুলো কনফিগার করা আছে:
+## 6. Environment Variables (.env Files)
+To run the project locally, the following variables must be configured in the `.env.local` or `.env` files:
 
-**Clerk Authentication (অথেন্টিকেশন):**
+**Clerk Authentication:**
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
 - `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
@@ -56,10 +56,10 @@ LWT এর ওয়ার্কফ্লো মূলত একটি রিয়ে
 - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
 - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
 
-**Database (ডাটাবেস):**
-- `DATABASE_URL` (PostgreSQL কানেকশন স্ট্রিং)
+**Database:**
+- `DATABASE_URL` (PostgreSQL connection string)
 
-**Cloudflare R2 / S3 Storage (স্টোরেজ):**
+**Cloudflare R2 / S3 Storage:**
 - `R2_ACCOUNT_ID`
 - `R2_ACCESS_KEY_ID`
 - `R2_SECRET_ACCESS_KEY`
@@ -67,5 +67,5 @@ LWT এর ওয়ার্কফ্লো মূলত একটি রিয়ে
 - `R2_BUCKET_PRIVATE`
 - `NEXT_PUBLIC_R2_PUBLIC_DOMAIN_ID`
 
-**AI APIs (এআই এপিআই):**
-- `GROQ_API_KEY` (Groq API এর জন্য)
+**AI APIs:**
+- `GROQ_API_KEY` (API key for LLM integrations)
