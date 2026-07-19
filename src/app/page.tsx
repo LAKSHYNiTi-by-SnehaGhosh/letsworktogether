@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { WaitlistButton } from "@/components/WaitlistButton";
 
 // Variants for staggering and scroll animations
 const containerVariants = {
@@ -93,10 +92,6 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 md:gap-4">
             <ModeToggle />
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
-              <WaitlistButton className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Early Access</WaitlistButton>
-            </motion.div>
-            {/*
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden md:block">
               <Link href="/sign-in">
                 <Button variant="ghost" className="inline-flex text-white hover:text-primary hover:bg-white/10 transition-colors text-sm px-4 py-2 h-9 rounded-full">Sign In</Button>
               </Link>
@@ -106,7 +101,6 @@ export default function LandingPage() {
                 <Button className="inline-flex border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg hover:shadow-primary/25 text-sm px-6 py-2 h-9 rounded-full transition-all">Get Started</Button>
               </Link>
             </motion.div>
-            */}
             <button 
               className="md:hidden p-2 text-white/70 hover:text-white transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -132,15 +126,12 @@ export default function LandingPage() {
                 <Link href="/about" className="text-white/70 hover:text-white transition-colors text-xl font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               </nav>
               <div className="flex flex-col gap-3 pt-6 border-t border-white/10">
-                <WaitlistButton className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>Get Early Access</WaitlistButton>
-                {/*
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button variant="ghost" className="w-full text-white hover:text-primary hover:bg-white/10 transition-colors py-6 text-lg rounded-xl">Sign In</Button>
                 </Link>
                 <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button className="w-full border-0 bg-[image:var(--brand-gradient)] text-white shadow-lg py-6 text-lg rounded-xl">Get Started</Button>
                 </Link>
-                */}
               </div>
             </motion.div>
           )}
@@ -196,16 +187,11 @@ export default function LandingPage() {
                 transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse" }}
                 className="rounded-full w-full sm:w-auto"
               >
-                <WaitlistButton size="lg" className="h-14 sm:h-14 w-full sm:w-auto px-8 text-base border-0 bg-[image:var(--brand-gradient)] text-white shadow-xl hover:shadow-primary/30 rounded-full transition-all">
-                  Join the Waiting List <ArrowRight className="ml-2 h-4 w-4" />
-                </WaitlistButton>
-                {/*
                 <Link href="/sign-up" className="w-full block">
                   <Button size="lg" className="h-14 sm:h-14 w-full sm:w-auto px-8 text-base border-0 bg-[image:var(--brand-gradient)] text-white shadow-xl hover:shadow-primary/30 rounded-full transition-all">
                     Start Execution Now <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                */}
               </motion.div>
               <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
                 <Link href="#features" className="w-full block">

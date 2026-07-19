@@ -4,9 +4,12 @@ import React from "react";
 import { Search, Gift, Bell, MessageSquare } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useOfficeStore } from "@/lib/store/office-state";
 
 export function DashboardHeader() {
   const { user } = useUser();
+  const is3DMode = useOfficeStore((state) => state.is3DMode);
+  const toggle3DMode = useOfficeStore((state) => state.toggle3DMode);
 
   return (
     <header className="h-16 border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8">
@@ -43,6 +46,16 @@ export function DashboardHeader() {
         <button className="hidden sm:flex p-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-full transition-colors">
           <MessageSquare size={20} />
         </button>
+
+        <div className="hidden sm:flex items-center border-l border-border/50 pl-4 ml-2">
+          <button 
+            onClick={toggle3DMode}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-muted text-sm font-medium text-foreground/80 hover:text-foreground border border-border/50 transition-colors"
+          >
+            <span className={`w-2 h-2 rounded-full ${is3DMode ? "bg-red-500" : "bg-emerald-500 animate-pulse"}`}></span>
+            {is3DMode ? "Exit 3D Office" : "Enter 3D Office"}
+          </button>
+        </div>
 
         <div className="hidden sm:flex items-center border-l border-border/50 pl-4 ml-2">
           <ModeToggle className="rounded-full w-9 h-9 border-0 hover:bg-muted" />

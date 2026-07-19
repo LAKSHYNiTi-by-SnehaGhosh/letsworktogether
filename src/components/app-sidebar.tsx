@@ -7,10 +7,9 @@ import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, FolderKanban, Users, Sparkles, CheckSquare, 
   Calendar, BarChart, Briefcase, Building, Plus, UserPlus, 
-  Bot, Menu, X, PanelLeftClose, PanelLeftOpen 
+  Bot, Menu, X, PanelLeftClose, PanelLeftOpen, LucideIcon 
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 
 const sidebarLinks = [
@@ -34,7 +33,7 @@ export function AppSidebar() {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  const renderLink = ({ href, label, icon: Icon }: { href: string; label: string; icon: React.ElementType }) => {
+  const renderLink = ({ href, label, icon: Icon }: { href: string; label: string; icon: LucideIcon }) => {
     const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
     return (
       <Link

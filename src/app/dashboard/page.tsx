@@ -1,6 +1,5 @@
-"use client";
-
-import { useUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { ActiveProjects } from "@/components/dashboard/active-projects";
 import { TodaysTasks } from "@/components/dashboard/todays-tasks";
@@ -12,76 +11,120 @@ import { SkillProgress } from "@/components/dashboard/skill-progress";
 import { WeeklyContribution } from "@/components/dashboard/weekly-contribution";
 import { Briefcase, CheckCircle, Users, Activity } from "lucide-react";
 
-// Mock Data for the UI based on mockup
-const mockProjects = [
-  {
-    id: "1",
-    name: "LakshyaNiti VES Platform",
-    type: "Web App",
-    progress: 72,
-    sprint: "Sprint 3",
-    dueDate: "5 days",
-    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
-  },
-  {
-    id: "2",
-    name: "Food Delivery App",
-    type: "Mobile App",
-    progress: 45,
-    sprint: "Sprint 2",
-    dueDate: "10 days",
-    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
-  },
-  {
-    id: "3",
-    name: "AI Study Buddy",
-    type: "AI/ML",
-    progress: 30,
-    sprint: "Sprint 1",
-    dueDate: "15 days",
-    members: ["/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg", "/day_expectation.jpg"]
+export default async function DashboardPage() {
+  const user = await currentUser();
+  if (!user) return null;
+  const firstName = user.firstName || "Colleague";
+
+  // Fetch real data from Prisma
+  const userRecord = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: {
+      profile: true,
+      projectMemberships: {
+        include: {
+          project: {
+            include: {
+              tasks: true,
+              members: {
+                include: { user: { include: { profile: true } } }
+              }
+            }
+          }
+        }
+      },
+      assignedTasks: {
+        where: {
+          status: { not: "DONE" }
+        },
+        orderBy: { dueDate: 'asc' },
+        take: 5
+      },
+      activityLogs: {
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: { user: { include: { profile: true } } }
+      }
+    }
+  });
+
+  if (!userRecord) {
+    return (
+      <div className="p-8 text-center">
+        <h2>Your profile is not fully setup yet. Please complete onboarding.</h2>
+      </div>
+    );
   }
-];
 
-const mockTasks = [
-  { id: "1", title: "Design Authentication Flow", priority: "High" as const, completed: true },
-  { id: "2", title: "Implement Login API", priority: "High" as const, completed: false },
-  { id: "3", title: "Code Review - User Module", priority: "Medium" as const, completed: false },
-  { id: "4", title: "Update Project Documentation", priority: "Medium" as const, completed: false },
-  { id: "5", title: "Team Standup Meeting", priority: "Low" as const, completed: false },
-];
+  // Format Projects
+  const liveProjects = userRecord.projectMemberships.map(pm => {
+    const p = pm.project;
+    const totalTasks = p.tasks.length;
+    const completedTasks = p.tasks.filter(t => t.status === "DONE").length;
+    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    
+    return {
+      id: p.id,
+      name: p.name,
+      type: "Project", // Type is missing in schema, using default
+      progress,
+      sprint: "Current Sprint",
+      dueDate: p.endDate ? new Date(p.endDate).toLocaleDateString() : "TBD",
+      members: p.members.map(m => m.user.profile?.avatarUrl || "/day_expectation.jpg")
+    };
+  });
 
-const mockActivities = [
-  { id: "1", userAvatar: "/day_expectation.jpg", userName: "Sneha", action: "pushed 4 commits", time: "2h ago" },
-  { id: "2", userAvatar: "/day_expectation.jpg", userName: "Rahul", action: "completed Task #21", time: "4h ago" },
-  { id: "3", userAvatar: "/day_expectation.jpg", userName: "Amit", action: "reviewed PR #45", time: "6h ago" },
-  { id: "4", userAvatar: "/day_expectation.jpg", userName: "You", action: "updated documentation", time: "8h ago" },
-];
+  // Format Tasks
+  const liveTasks = userRecord.assignedTasks.map(t => {
+    let prio: "High" | "Medium" | "Low" = "Medium";
+    if (t.priority === "HIGH" || t.priority === "URGENT") prio = "High";
+    if (t.priority === "LOW") prio = "Low";
+    
+    return {
+      id: t.id,
+      title: t.title,
+      priority: prio,
+      completed: t.status === "DONE"
+    };
+  });
 
-const mockEvents = [
-  { id: "1", day: "10", month: "Jun", title: "Team Standup", time: "10:00 AM - 10:30 AM" },
-  { id: "2", day: "10", month: "Jun", title: "Sprint Review", time: "03:00 PM - 04:00 PM" },
-  { id: "3", day: "11", month: "Jun", title: "Client Meeting", time: "11:00 AM - 12:00 PM" },
-];
+  // Format Activities
+  const liveActivities = userRecord.activityLogs.map(a => ({
+    id: a.id,
+    userAvatar: a.user.profile?.avatarUrl || "/day_expectation.jpg",
+    userName: a.user.profile?.firstName || "Someone",
+    action: a.action,
+    time: new Date(a.createdAt).toLocaleDateString()
+  }));
 
-const mockSkills = [
-  { name: "React", progress: 80 },
-  { name: "Node.js", progress: 75 },
-  { name: "SQL", progress: 70 },
-  { name: "AWS", progress: 60 },
-  { name: "Docker", progress: 50 },
-];
+  const activeProjectsCount = liveProjects.length;
+  const tasksCompletedCount = await prisma.task.count({
+    where: { assigneeId: user.id, status: "DONE" }
+  });
+  
+  // Count unique team members across teams user is part of
+  const teamMemberships = await prisma.teamMember.findMany({
+    where: { userId: user.id },
+    select: { teamId: true }
+  });
+  const teamIds = teamMemberships.map(tm => tm.teamId);
+  const teamMembersCount = await prisma.teamMember.count({
+    where: { teamId: { in: teamIds } }
+  });
 
-const mockContributions = {
-  commits: 18, commitsTrend: "+8%",
-  codeReviews: 7, codeReviewsTrend: "+12%",
-  tasksDone: 12, tasksDoneTrend: "+20%",
-  hoursSpent: 24, hoursSpentTrend: "+15%"
-};
+  const overallProgress = liveProjects.length > 0 
+    ? Math.round(liveProjects.reduce((acc, p) => acc + p.progress, 0) / liveProjects.length)
+    : 0;
 
-export default function DashboardPage() {
-  const { user } = useUser();
-  const firstName = user?.firstName || "Ishani";
+  // Empty fallbacks for components without schema mappings
+  const liveEvents: any[] = [];
+  const liveSkills: any[] = [];
+  const liveContributions = {
+    commits: 0, commitsTrend: "0%",
+    codeReviews: 0, codeReviewsTrend: "0%",
+    tasksDone: tasksCompletedCount, tasksDoneTrend: "N/A",
+    hoursSpent: 0, hoursSpentTrend: "0%"
+  };
 
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-6 pb-12">
@@ -106,33 +149,33 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title="Active Projects" 
-          value="5" 
-          trend="+1 this week" 
+          value={activeProjectsCount.toString()} 
+          trend="Current" 
           icon={<Briefcase className="h-6 w-6 text-blue-500" />} 
           iconBgClass="bg-blue-500/10"
         />
         <StatCard 
           title="Tasks Completed" 
-          value="28" 
-          trend="+15% this week" 
+          value={tasksCompletedCount.toString()} 
+          trend="Total" 
           icon={<CheckCircle className="h-6 w-6 text-emerald-500" />} 
           iconBgClass="bg-emerald-500/10"
         />
         <StatCard 
           title="Team Members" 
-          value="8" 
-          trend="+2 this week" 
+          value={teamMembersCount.toString()} 
+          trend="In your teams" 
           icon={<Users className="h-6 w-6 text-purple-500" />} 
           iconBgClass="bg-purple-500/10"
         />
         <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm flex flex-col justify-center">
           <span className="text-[13px] font-medium text-muted-foreground mb-2">Overall Progress</span>
           <div className="flex items-end justify-between mb-2">
-            <span className="text-3xl font-bold">72%</span>
+            <span className="text-3xl font-bold">{overallProgress}%</span>
             <Activity className="text-indigo-500 h-6 w-6 mb-1" />
           </div>
           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full" style={{ width: "72%" }} />
+            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${overallProgress}%` }} />
           </div>
         </div>
       </div>
@@ -140,10 +183,10 @@ export default function DashboardPage() {
       {/* Main Grid: Projects, Tasks, AI Mentor */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 xl:col-span-5">
-          <ActiveProjects projects={mockProjects} />
+          <ActiveProjects projects={liveProjects} />
         </div>
         <div className="lg:col-span-4 xl:col-span-4">
-          <TodaysTasks tasks={mockTasks} />
+          <TodaysTasks tasks={liveTasks} />
         </div>
         <div className="lg:col-span-3 xl:col-span-3">
           <AiMentor />
@@ -153,23 +196,23 @@ export default function DashboardPage() {
       {/* Activity, Charts, Events Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-4 xl:col-span-3">
-          <TeamActivity activities={mockActivities} />
+          <TeamActivity activities={liveActivities} />
         </div>
         <div className="lg:col-span-5 xl:col-span-6">
           <ProgressChart />
         </div>
         <div className="lg:col-span-3 xl:col-span-3">
-          <UpcomingEvents events={mockEvents} />
+          <UpcomingEvents events={liveEvents} />
         </div>
       </div>
 
       {/* Skills & Contribution Row */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         <div className="xl:col-span-5">
-          <SkillProgress skills={mockSkills} />
+          <SkillProgress skills={liveSkills} />
         </div>
         <div className="xl:col-span-7">
-          <WeeklyContribution data={mockContributions} />
+          <WeeklyContribution data={liveContributions} />
         </div>
       </div>
 
