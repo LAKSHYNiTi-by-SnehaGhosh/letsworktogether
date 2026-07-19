@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       systemPrompt = "You are an AI Tech Lead. Focus on code quality, architecture, and brief technical advice.";
     }
 
-    const messages = [
+    const messages: any[] = [
       { role: "system", content: systemPrompt },
       ...pastMemories.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
