@@ -7,7 +7,9 @@ export async function GET() {
   try {
     const admin = await prisma.backendAdmin.findFirst();
     return NextResponse.json({ success: true, admin: admin ? "Exists" : "None" });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error?.message || "Unknown error", stack: error?.stack }, { status: 200 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    return NextResponse.json({ success: false, error: errorMessage, stack: errorStack }, { status: 200 });
   }
 }

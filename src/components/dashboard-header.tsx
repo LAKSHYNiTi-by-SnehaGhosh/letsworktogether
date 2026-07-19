@@ -2,12 +2,11 @@
 
 import React from "react";
 import { Search, Gift, Bell, MessageSquare } from "lucide-react";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useOfficeStore } from "@/lib/store/office-state";
 
 export function DashboardHeader() {
-  const { user } = useUser();
   const is3DMode = useOfficeStore((state) => state.is3DMode);
   const toggle3DMode = useOfficeStore((state) => state.toggle3DMode);
 

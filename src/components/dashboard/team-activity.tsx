@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -26,8 +27,8 @@ export function TeamActivity({ activities }: { activities: Activity[] }) {
         {activities.map((activity) => (
           <div key={activity.id} className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full border border-border/50 bg-muted overflow-hidden shrink-0">
-                <img src={activity.userAvatar} alt={activity.userName} className="w-full h-full object-cover" />
+              <div className="w-8 h-8 rounded-full border border-border/50 bg-muted overflow-hidden shrink-0 relative">
+                <Image src={activity.userAvatar} alt={activity.userName} fill className="object-cover" />
               </div>
               <p className="text-[14px] text-foreground/90">
                 <span className="font-semibold">{activity.userName}</span> {activity.action}

@@ -8,6 +8,7 @@ import { PersonalWorkspace } from "./rooms/PersonalWorkspace";
 import { MeetingRoom } from "./rooms/MeetingRoom";
 import { EngineeringDepartment } from "./rooms/EngineeringDepartment";
 import { ArchiveRoom } from "./rooms/ArchiveRoom";
+import { ExecutiveSuite } from "./rooms/ExecutiveSuite";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useUser } from "@clerk/nextjs";
 
@@ -16,8 +17,9 @@ export function OfficeEnvironment() {
   const projectHealth = useOfficeStore((state) => state.projectHealth);
   const { user } = useUser();
   const { activeUsers, updatePosition } = useWebSocket();
+  const timeOfDayState = useOfficeStore((state) => state.timeOfDay);
   
-  const [timeOfDay, setTimeOfDay] = useState({ hour: 12, sunPosition: [10, 10, 10] as [number, number, number] });
+  const [skyProps, setSkyProps] = useState({ hour: 12, sunPosition: [10, 10, 10] as [number, number, number] });
   const lightRef = useRef<THREE.DirectionalLight>(null);
 
   // Broadcast position when room changes
@@ -32,20 +34,29 @@ export function OfficeEnvironment() {
       
       updatePosition(randomOffset, currentRoom);
     }
-  }, [currentRoom, user]);
+  }, [currentRoom, user, updatePosition]);
   const ambientRef = useRef<THREE.AmbientLight>(null);
 
-  // Determine time of day
+  // Determine time of day visually based on global state
   useEffect(() => {
-    const hour = new Date().getHours();
+    let hour = 12;
+    if (timeOfDayState === "Morning") hour = 8;
+    else if (timeOfDayState === "WorkHours") hour = 14;
+    else if (timeOfDayState === "Evening") hour = 20;
+    else if (timeOfDayState === "Weekend") hour = 16;
+
     // Sun position logic based on hour (very simple arc)
     const normalizedHour = (hour - 6) / 12; // 6am = 0, 6pm = 1
     const angle = normalizedHour * Math.PI;
     const x = Math.cos(angle) * 10;
     const y = Math.max(Math.sin(angle) * 10, -2); // don't go too far below horizon
     
-    setTimeOfDay({ hour, sunPosition: [x, y, 10] });
-  }, []);
+    // Using a ref to track the last applied state to avoid unnecessary renders
+    setSkyProps(prev => {
+      if (prev.hour === hour && prev.sunPosition[0] === x && prev.sunPosition[1] === y) return prev;
+      return { hour, sunPosition: [x, y, 10] };
+    });
+  }, [timeOfDayState]);
 
   // Animate critical lighting
   useFrame((state) => {
@@ -54,7 +65,8 @@ export function OfficeEnvironment() {
       const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.2 + 0.3;
       ambientRef.current.intensity = pulse;
     } else if (ambientRef.current) {
-      ambientRef.current.intensity = 0.5; // Default
+      // Dimmer in evening
+      ambientRef.current.intensity = timeOfDayState === "Evening" ? 0.2 : 0.5;
     }
   });
 
@@ -77,16 +89,16 @@ export function OfficeEnvironment() {
 
   return (
     <>
-      <Sky sunPosition={timeOfDay.sunPosition} />
+      <Sky sunPosition={skyProps.sunPosition} />
       {/* Fallback environment lighting if sky isn't enough */}
-      <Environment preset={timeOfDay.hour < 7 || timeOfDay.hour > 19 ? "night" : "city"} />
+      <Environment preset={skyProps.hour < 7 || skyProps.hour > 19 ? "night" : "city"} />
       
-      <ambientLight ref={ambientRef} color={ambientColor} intensity={0.5} />
+      <ambientLight ref={ambientRef} color={ambientColor} intensity={timeOfDayState === "Evening" ? 0.2 : 0.5} />
       <directionalLight 
         ref={lightRef}
         color={directionalColor}
-        position={timeOfDay.sunPosition} 
-        intensity={projectHealth === "Critical" ? 0.3 : 1} 
+        position={skyProps.sunPosition} 
+        intensity={projectHealth === "Critical" ? 0.3 : (timeOfDayState === "Evening" ? 0.2 : 1)} 
         castShadow 
       />
       
@@ -122,6 +134,7 @@ export function OfficeEnvironment() {
         {currentRoom === "meeting" && <MeetingRoom />}
         {currentRoom === "engineering" && <EngineeringDepartment />}
         {currentRoom === "archive" && <ArchiveRoom />}
+        {currentRoom === "executive" && <ExecutiveSuite />}
       </Suspense>
     </>
   );

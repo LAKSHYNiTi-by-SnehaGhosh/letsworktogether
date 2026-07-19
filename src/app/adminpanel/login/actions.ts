@@ -46,8 +46,9 @@ export async function loginAdmin(email: string, password: string) {
     });
 
     return { success: true };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Login Error:", err);
-    return { error: err?.message || "Server Error" };
+    const errorMessage = err instanceof Error ? err.message : "Server Error";
+    return { error: errorMessage };
   }
 }

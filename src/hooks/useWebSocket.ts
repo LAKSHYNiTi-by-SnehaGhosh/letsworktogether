@@ -1,12 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
+
+type WebSocketEventCallback = (payload: unknown) => void;
+
+interface ActiveUser {
+  id: string;
+  name: string;
+  room?: string;
+  position?: [number, number, number];
+}
 
 export function useWebSocket(url: string = "ws://localhost:8080") {
   const ws = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<unknown>(null);
-  const [activeUsers, setActiveUsers] = useState<any[]>([]);
+  const [activeUsers, setActiveUsers] = useState<ActiveUser[]>([]);
   const { user } = useUser();
+  const eventListeners = useRef<Set<WebSocketEventCallback>>(new Set());
 
   useEffect(() => {
     if (!user) return; // Wait until clerk user is loaded
@@ -42,6 +52,9 @@ export function useWebSocket(url: string = "ws://localhost:8080") {
           setActiveUsers((prev) => 
             prev.map(u => u.id === data.userId ? { ...u, position: data.position, room: data.room } : u)
           );
+        } else if (data.type === "EVENT") {
+          // Trigger local listeners
+          eventListeners.current.forEach(listener => listener(data.payload));
         }
       } catch {
         setLastMessage(event.data);
@@ -60,15 +73,27 @@ export function useWebSocket(url: string = "ws://localhost:8080") {
     };
   }, [url, user]);
 
-  const sendMessage = (data: unknown) => {
+  const sendMessage = useCallback((data: unknown) => {
     if (ws.current && isConnected) {
       ws.current.send(typeof data === "string" ? data : JSON.stringify(data));
     }
-  };
+  }, [isConnected]);
 
-  const updatePosition = (position: [number, number, number], room: string) => {
+  const updatePosition = useCallback((position: [number, number, number], room: string) => {
     sendMessage({ type: "MOVE", position, room });
-  };
+  }, [sendMessage]);
 
-  return { isConnected, lastMessage, sendMessage, activeUsers, updatePosition };
+  const broadcastEvent = useCallback((payload: unknown) => {
+    sendMessage({ type: "EVENT", payload });
+  }, [sendMessage]);
+
+  const subscribeToEvents = useCallback((callback: WebSocketEventCallback) => {
+    eventListeners.current.add(callback);
+    return () => {
+      eventListeners.current.delete(callback);
+    };
+  }, []);
+
+  return { isConnected, lastMessage, sendMessage, activeUsers, updatePosition, broadcastEvent, subscribeToEvents };
 }
+

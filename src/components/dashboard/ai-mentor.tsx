@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Sparkles, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useOfficeStore } from "@/lib/store/office-state";
 
 interface AiMentorProps {

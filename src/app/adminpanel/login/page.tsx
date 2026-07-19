@@ -34,9 +34,9 @@ export default function AdminLoginPage() {
         router.push("/adminpanel");
         router.refresh();
       }
-    } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

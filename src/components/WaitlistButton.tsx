@@ -4,8 +4,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
 import { Loader2, CheckCircle2 } from "lucide-react"
 
 export function WaitlistButton({ children, className, onClick, variant, size }: { children: React.ReactNode, className?: string, onClick?: () => void, variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link", size?: "default" | "sm" | "lg" | "icon" }) {
@@ -51,8 +49,8 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
       }
       
       setSuccess(true)
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
         setError("Request timed out. Please check your connection and try again.")
       } else {
         setError("Failed to join waitlist. Please try again.")
@@ -73,7 +71,7 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
             }, 300)
         }
     }}>
-      {/* @ts-ignore */}
+      {/* @ts-expect-error React 19 types issue */}
       <DialogTrigger asChild>
         <Button className={className} variant={variant} size={size} onClick={onClick}>
           {children}
@@ -90,8 +88,8 @@ export function WaitlistButton({ children, className, onClick, variant, size }: 
           <div className="flex flex-col items-center justify-center py-6 text-center space-y-4">
             <CheckCircle2 className="w-16 h-16 text-green-500" />
             <div>
-              <h3 className="font-bold text-xl">You're on the list!</h3>
-              <p className="text-muted-foreground mt-2">We'll notify you at <span className="font-medium text-foreground">{email}</span> as soon as we open up early access.</p>
+              <h3 className="font-bold text-xl">You&apos;re on the list!</h3>
+              <p className="text-muted-foreground mt-2">We&apos;ll notify you at <span className="font-medium text-foreground">{email}</span> as soon as we open up early access.</p>
             </div>
             <Button className="w-full mt-4" onClick={() => setOpen(false)}>Close</Button>
           </div>

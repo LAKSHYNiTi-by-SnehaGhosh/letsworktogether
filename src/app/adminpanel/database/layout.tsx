@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { jwtVerify } from "jose";
 import Link from "next/link";
-import { Database, Zap, LogOut, ArrowLeft } from "lucide-react";
+import { Database, Zap, ArrowLeft } from "lucide-react";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-key-please-change-in-production"

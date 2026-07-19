@@ -71,7 +71,7 @@ export async function generateTextWithUsageTracking(userId: string, prompt: stri
 
     return { success: true, data: text };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 4. Critical Error Logging (so it shows up in Admin Panel)
     const errorMessage = error instanceof Error ? error.message : "Unknown AI API Crash";
     

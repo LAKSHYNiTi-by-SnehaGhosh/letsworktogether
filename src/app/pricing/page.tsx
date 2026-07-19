@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, CheckCircle2, XCircle, ArrowRight, Zap, Users, ShieldCheck, CreditCard } from "lucide-react";
+import { Menu, X, CheckCircle2, XCircle, Zap, Users, ShieldCheck, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";

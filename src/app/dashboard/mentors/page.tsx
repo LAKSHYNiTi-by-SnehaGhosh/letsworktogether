@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Search, Star, Briefcase, GraduationCap, Clock, CheckCircle2 } from "lucide-react";
+import { Search, Star, Briefcase, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";

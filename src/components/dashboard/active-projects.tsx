@@ -33,8 +33,8 @@ export function ActiveProjects({ projects }: { projects: Project[] }) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 {project.iconUrl ? (
-                  <div className="h-10 w-10 rounded-xl bg-muted overflow-hidden shrink-0 border border-border/50 flex items-center justify-center">
-                    <img src={project.iconUrl} alt={project.name} className="w-full h-full object-cover" />
+                  <div className="h-10 w-10 rounded-xl bg-muted overflow-hidden shrink-0 border border-border/50 flex items-center justify-center relative">
+                    <Image src={project.iconUrl} alt={project.name} fill className="object-cover" />
                   </div>
                 ) : (
                   <div className="h-10 w-10 rounded-xl bg-lwt-blue/10 shrink-0 border border-border/50 flex items-center justify-center">
@@ -51,8 +51,8 @@ export function ActiveProjects({ projects }: { projects: Project[] }) {
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex -space-x-1.5">
                       {project.members.slice(0, 4).map((member, i) => (
-                        <div key={i} className="w-5 h-5 rounded-full border border-background bg-muted overflow-hidden">
-                          <img src={member} alt="Member" className="w-full h-full object-cover" />
+                        <div key={i} className="w-5 h-5 rounded-full border border-background bg-muted overflow-hidden relative">
+                          <Image src={member} alt="Member" fill className="object-cover" />
                         </div>
                       ))}
                       {project.members.length > 4 && (

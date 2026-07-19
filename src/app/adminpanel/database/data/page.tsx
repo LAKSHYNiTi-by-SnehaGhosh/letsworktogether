@@ -4,7 +4,7 @@ import { Users, FolderGit2, Users2, Building2 } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function DatabaseOverviewPage() {
-  const [users, projects, teams, organizations] = await Promise.all([
+  const [users, projects, organizations] = await Promise.all([
     prisma.user.findMany({
       include: { profile: true },
       orderBy: { createdAt: 'desc' },

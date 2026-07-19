@@ -136,8 +136,8 @@ Only output valid JSON.`;
     });
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("AI Generation Error:", error);
-    return { success: false, error: error.message || "Failed to generate sprint" };
+    return { success: false, error: (error instanceof Error ? error.message : "Unknown error") || "Failed to generate sprint" };
   }
 }
