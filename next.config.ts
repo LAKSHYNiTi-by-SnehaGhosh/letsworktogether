@@ -2,12 +2,13 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.com https://*.clerk.accounts.dev;
-    connect-src 'self' https://clerk.com https://*.clerk.accounts.dev;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.com https://*.clerk.accounts.dev https://vercel.live https://vercel.com;
+    connect-src 'self' https://clerk.com https://*.clerk.accounts.dev https://vercel.live wss://*.vercel.live wss://ws-*.pusher.com ws://localhost:* wss://localhost:* https://*.vercel.app;
     worker-src 'self' blob:;
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://img.clerk.com https://*.clerk.accounts.dev;
-    font-src 'self';
+    style-src 'self' 'unsafe-inline' https://vercel.live;
+    img-src 'self' blob: data: https://img.clerk.com https://*.clerk.accounts.dev https://vercel.live https://vercel.com;
+    font-src 'self' https://vercel.live;
+    frame-src 'self' https://vercel.live;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
