@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
+import { requireUser } from "./auth-sync";
 import { rateLimitAction } from "./rate-limit";
 import { logger } from "./logger";
 
@@ -35,12 +36,12 @@ export function createSafeAction<Input, Output>(
       const ctx: ActionContext = { userId: "" };
 
       if (requireAuth) {
-        const authCtx = await auth();
-        if (!authCtx.userId) {
+        const authUserId = await requireUser();
+        if (!authUserId) {
           throw new ActionError("Unauthorized");
         }
-        userId = authCtx.userId;
-        ctx.userId = authCtx.userId;
+        userId = authUserId;
+        ctx.userId = authUserId;
       }
 
       if (shouldRateLimit) {

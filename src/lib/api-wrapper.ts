@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { requireUser } from './auth-sync';
 import { requirePermission, requireRole } from '@/lib/auth/rbac';
 
 type AuthHandler = (
@@ -21,7 +22,9 @@ interface AuthOptions {
 export function withAuth(handler: AuthHandler, options: AuthOptions = {}) {
   return async (req: Request, { params }: { params: Record<string, string | undefined> }) => {
     try {
-      const { userId, orgId: clerkOrgId } = await auth();
+      const authCtx = await auth();
+      const clerkOrgId = authCtx.orgId;
+      const userId = await requireUser();
 
       if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

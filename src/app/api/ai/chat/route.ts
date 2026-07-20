@@ -1,3 +1,4 @@
+import { requireUser } from "@/lib/auth-sync";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
@@ -5,7 +6,7 @@ import Groq from "groq-sdk";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const userId = await requireUser();
     if (!userId) return new NextResponse("Unauthorized", { status: 401 });
 
     const body = await req.json();
