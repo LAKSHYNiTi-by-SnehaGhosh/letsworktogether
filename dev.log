@@ -6,7 +6,7 @@
 - Local:         http://localhost:3000
 - Network:       http://192.168.29.82:3000
 - Environments: .env.local, .env
-✓ Ready in 1552ms
+✓ Ready in 519ms
 ⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
 ⚠ Invalid next.config.ts options detected: 
 ⚠     Unrecognized key(s) in object: 'eslint'
@@ -19,4 +19,4 @@ The data collected is used to inform Clerk's product roadmap.
 To learn more, including how to opt-out from the telemetry program, visit: https://clerk.com/docs/telemetry.
 
 ○ Compiling /_not-found/page ...
- GET /dashboard/billing 404 in 23.7s (next.js: 22.1s, proxy.ts: 823ms, application-code: 799ms)
+ GET /dashboard/billing 404 in 5.8s (next.js: 4.6s, proxy.ts: 651ms, application-code: 564ms)

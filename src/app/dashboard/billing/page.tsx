@@ -9,7 +9,7 @@ export default async function BillingDashboard() {
   if (!clerkUser) redirect("/sign-in");
 
   const user = await prisma.user.findUnique({
-    where: { id: clerkUser.id },
+    where: { email: clerkUser.emailAddresses[0].emailAddress },
     include: { subscription: true }
   });
 
