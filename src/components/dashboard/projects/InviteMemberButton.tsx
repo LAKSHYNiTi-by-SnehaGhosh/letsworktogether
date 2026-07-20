@@ -27,10 +27,10 @@ export default function InviteMemberButton({ projectId }: { projectId: string })
     setIsInviting(false);
 
     if (result.success) {
-      alert(result.message || "Member invited successfully!");
+      alert(result.message || "Invitation sent successfully!");
       setIsOpen(false);
       setIdentifier("");
-      window.location.reload(); // Refresh to see the new member
+      window.location.reload(); // Refresh to see pending invitation
     } else {
       alert(result.error || "Failed to invite member.");
     }
@@ -69,7 +69,7 @@ export default function InviteMemberButton({ projectId }: { projectId: string })
               className="w-full p-2.5 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               placeholder="e.g. user@example.com"
             />
-            <p className="text-xs text-muted-foreground">The user must have already signed up to be invited via email.</p>
+            <p className="text-xs text-muted-foreground">They will receive an invitation in their dashboard to join the project.</p>
           </div>
           <div className="flex justify-end pt-2">
             <Button type="submit" disabled={isInviting} className="bg-[image:var(--brand-gradient)] border-0 text-white shadow-sm w-full">

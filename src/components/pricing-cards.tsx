@@ -134,7 +134,12 @@ export function PricingCards({ isPro }: PricingCardsProps) {
             
             <div className="mb-10">
               {!isPro ? (
-                <form action="/api/subscriptions/upgrade" method="POST">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.action = "/api/subscriptions/upgrade";
+                  e.currentTarget.method = "POST";
+                  e.currentTarget.submit();
+                }}>
                   <Button type="submit" className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white">
                     Upgrade to Pro
                   </Button>

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { createProject, joinProject } from "@/app/actions/projects";
-import { getUserProjects } from "@/app/actions/queries";
+import { createProject, joinProject, acceptProjectInvitation, rejectProjectInvitation } from "@/app/actions/projects";
+import { getUserProjects, getUserPendingInvitations } from "@/app/actions/queries";
 import { generateSprintForProject } from "@/app/actions/ai";
 import { Suspense } from "react";
 import JoinProjectHandler from "@/components/dashboard/projects/JoinProjectHandler";
@@ -25,6 +25,7 @@ export default function ProjectsPage() {
   const { user } = useUser();
   const [isGenerating, setIsGenerating] = useState(false);
   const [projects, setProjects] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [pendingInvites, setPendingInvites] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [loading, setLoading] = useState(true);
 
   // Dialog State
@@ -44,14 +45,42 @@ export default function ProjectsPage() {
   useEffect(() => {
     if (!user) return;
 
-    getUserProjects()
-      .then((projs) => {
+    Promise.all([
+      getUserProjects(),
+      getUserPendingInvitations()
+    ])
+      .then(([projs, invites]) => {
         setProjects(projs);
+        setPendingInvites(invites);
         if (projs.length > 0) setAiProjectId(projs[0].id);
       })
-      .catch((err) => console.error("Error fetching projects:", err))
+      .catch((err) => console.error("Error fetching data:", err))
       .finally(() => setLoading(false));
   }, [user]);
+
+  const handleAcceptInvite = async (token: string) => {
+    const result = await acceptProjectInvitation(token);
+    if (result.success) {
+      alert("Project joined successfully!");
+      // Refresh data
+      Promise.all([getUserProjects(), getUserPendingInvitations()]).then(([projs, invites]) => {
+        setProjects(projs);
+        setPendingInvites(invites);
+      });
+    } else {
+      alert(result.error || "Failed to accept invite.");
+    }
+  };
+
+  const handleRejectInvite = async (token: string) => {
+    const result = await rejectProjectInvitation(token);
+    if (result.success) {
+      // Refresh data
+      getUserPendingInvitations().then(setPendingInvites);
+    } else {
+      alert(result.error || "Failed to reject invite.");
+    }
+  };
 
   const handleGenerateAI = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,6 +214,30 @@ export default function ProjectsPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {pendingInvites.length > 0 && (
+        <div className="mb-8 p-6 bg-card border border-border rounded-xl shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 text-primary">Pending Invitations</h2>
+          <div className="space-y-4">
+            {pendingInvites.map((invite) => (
+              <div key={invite.id} className="flex items-center justify-between bg-muted/30 p-4 rounded-lg border border-border/50">
+                <div>
+                  <h3 className="font-medium text-foreground">{invite.project.name}</h3>
+                  <p className="text-sm text-muted-foreground">You have been invited to join this project.</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleRejectInvite(invite.token)}>
+                    Decline
+                  </Button>
+                  <Button size="sm" className="bg-[image:var(--brand-gradient)] border-0 text-white" onClick={() => handleAcceptInvite(invite.token)}>
+                    Accept Invite
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, i) => (

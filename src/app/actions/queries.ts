@@ -122,3 +122,34 @@ export async function getProjectAnalytics(projectId: string) {
   
   return { totalTasks, completedTasks, milestones, submissions };
 }
+
+export async function getUserPendingInvitations() {
+  const { userId } = await auth();
+  if (!userId) return [];
+  
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.email) return [];
+  
+  return prisma.projectInvitation.findMany({
+    where: { 
+      email: {
+        equals: user.email,
+        mode: "insensitive"
+      },
+      status: "PENDING"
+    },
+    include: {
+      project: true
+    },
+    orderBy: { createdAt: "desc" }
+  });
+}
+
+export async function getProjectInvitations(projectId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+  return prisma.projectInvitation.findMany({
+    where: { projectId, status: "PENDING" },
+    orderBy: { createdAt: "desc" }
+  });
+}

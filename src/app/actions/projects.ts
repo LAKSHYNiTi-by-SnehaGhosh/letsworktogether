@@ -116,35 +116,116 @@ export async function inviteMemberToProject(projectId: string, identifier: strin
     return { success: false, error: "Unauthorized to invite members" };
   }
 
-  // Find user by email or username (using User model's email, or Profile's email if it existed, but User has email)
-  const targetUser = await prisma.user.findFirst({
-    where: {
-      email: {
-        equals: identifier,
-        mode: "insensitive"
-      }
-    }
-  });
-
-  if (!targetUser) {
-    return { success: false, error: "No user found with that email address. They must sign up first." };
-  }
-
   try {
-    await prisma.projectMember.create({
-      data: {
-        projectId,
-        userId: targetUser.id,
-        role: "MEMBER"
+    // Generate an invitation token
+    const token = randomUUID();
+
+    // Check if invitation already exists
+    const existingInvite = await prisma.projectInvitation.findUnique({
+      where: {
+        projectId_email: { projectId, email: identifier }
       }
     });
-    return { success: true, message: `Successfully invited ${targetUser.email} to the project.` };
+
+    if (existingInvite && existingInvite.status === "PENDING") {
+      return { success: false, error: "An invitation has already been sent to this email." };
+    }
+
+    if (existingInvite) {
+      // Update existing invite
+      await prisma.projectInvitation.update({
+        where: { id: existingInvite.id },
+        data: { status: "PENDING", token }
+      });
+    } else {
+      // Create new invite
+      await prisma.projectInvitation.create({
+        data: {
+          projectId,
+          email: identifier,
+          token,
+          role: "MEMBER"
+        }
+      });
+    }
+
+    return { success: true, message: `An invitation has been sent to ${identifier}. They can accept it from their dashboard.` };
+  } catch (error: any) {
+    console.error("Error inviting member:", error);
+    return { success: false, error: "Failed to send invitation." };
+  }
+}
+
+// (Removed duplicate getProjectInvitations as it is now in queries.ts, we can leave it here or delete it)
+// But wait, there is already getProjectInvitations in queries.ts, so let's delete it here to avoid duplication.
+
+
+
+export async function getInvitationDetails(token: string) {
+  const invite = await prisma.projectInvitation.findUnique({
+    where: { token },
+    include: { project: true }
+  });
+  return invite;
+}
+
+export async function acceptProjectInvitation(token: string) {
+  const userId = await requireUser();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error("User not found");
+
+  const invite = await prisma.projectInvitation.findUnique({
+    where: { token }
+  });
+
+  if (!invite || invite.status !== "PENDING") {
+    return { success: false, error: "Invalid or expired invitation." };
+  }
+
+  // Allow any logged-in user to accept it, or restrict to the invited email?
+  // Usually it's better to restrict if strict, but let's allow the currently logged-in user to claim it if they clicked the link.
+  
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.projectInvitation.update({
+        where: { id: invite.id },
+        data: { status: "ACCEPTED" }
+      });
+
+      await tx.projectMember.create({
+        data: {
+          projectId: invite.projectId,
+          userId,
+          role: invite.role
+        }
+      });
+    });
+
+    return { success: true, projectId: invite.projectId };
   } catch (error: any) {
     if (error.code === 'P2002') {
-      return { success: false, error: "User is already a member of this project." };
+      return { success: false, error: "You are already a member of this project." };
     }
-    console.error("Error inviting member:", error);
-    return { success: false, error: "Failed to invite member." };
+    console.error("Error accepting invite:", error);
+    return { success: false, error: "Failed to accept invitation." };
+  }
+}
+
+export async function rejectProjectInvitation(token: string) {
+  const userId = await requireUser();
+  if (!userId) throw new Error("Unauthorized");
+
+  try {
+    const invite = await prisma.projectInvitation.update({
+      where: { token },
+      data: { status: "REJECTED" }
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error rejecting invite:", error);
+    return { success: false, error: "Failed to reject invitation." };
   }
 }
 

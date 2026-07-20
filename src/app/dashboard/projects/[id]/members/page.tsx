@@ -1,10 +1,11 @@
-import { getProjectMembers } from "@/app/actions/queries";
+import { getProjectMembers, getProjectInvitations } from "@/app/actions/queries";
 import { User, ShieldAlert, Shield } from "lucide-react";
 import InviteMemberButton from "@/components/dashboard/projects/InviteMemberButton";
 
 export default async function ProjectMembersPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const members = await getProjectMembers(id);
+  const pendingInvites = await getProjectInvitations(id);
 
   return (
     <div className="p-8 max-w-[1600px] mx-auto">
@@ -53,13 +54,50 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
               </div>
             </div>
           ))}
-          {members.length === 0 && (
+          {members.length === 0 && pendingInvites.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">
               No members found.
             </div>
           )}
         </div>
       </div>
+
+      {pendingInvites.length > 0 && (
+        <div className="mt-8 bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+          <div className="p-4 bg-muted/30 border-b border-border/50">
+            <h3 className="font-semibold">Pending Invitations</h3>
+          </div>
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 bg-muted/10 border-b border-border/50 text-sm font-semibold text-muted-foreground">
+            <div>User</div>
+            <div>Email / ID</div>
+            <div>Role</div>
+            <div>Invited On</div>
+          </div>
+          <div className="divide-y divide-border/50">
+            {pendingInvites.map((invite: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+              <div key={invite.id} className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 items-center hover:bg-muted/10 transition-colors opacity-70">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-xs">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium italic">Pending...</span>
+                </div>
+                <div className="text-sm text-muted-foreground truncate pr-4">
+                  {invite.email}
+                </div>
+                <div>
+                  <span className="text-xs px-2 py-1 rounded-md font-medium bg-secondary text-secondary-foreground">
+                    {invite.role}
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {new Date(invite.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
