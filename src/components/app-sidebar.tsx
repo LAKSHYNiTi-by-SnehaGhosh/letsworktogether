@@ -43,11 +43,11 @@ export function AppSidebar() {
         className={`flex items-center ${isCollapsed ? "justify-center px-0" : "gap-3 px-3"} py-2.5 rounded-lg transition-colors ${
           isActive
             ? "bg-lwt-blue/10 text-lwt-blue font-medium shadow-sm"
-            : "text-foreground/70 hover:bg-muted hover:text-foreground"
+            : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
         }`}
         title={isCollapsed ? label : undefined}
       >
-        <Icon size={20} className={isActive ? "text-lwt-blue" : "text-foreground/50"} />
+        <Icon size={20} className={isActive ? "text-lwt-blue" : "text-slate-400"} />
         {!isCollapsed && <span className="text-[14px] whitespace-nowrap overflow-hidden font-medium">{label}</span>}
       </Link>
     );
@@ -56,11 +56,11 @@ export function AppSidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 h-16 border-b border-border/50 bg-background/95 backdrop-blur-sm w-full shrink-0 z-40 sticky top-0">
+      <div className="md:hidden flex items-center justify-between px-4 h-16 border-b border-slate-800 bg-[#0F172A] w-full shrink-0 z-40 sticky top-0">
         <Link href="/dashboard" className="flex items-center">
           <Image src="/main_icon.png" alt="LWT Workspace" width={100} height={40} className="h-8 w-auto object-contain" priority />
         </Link>
-        <button onClick={toggleSidebar} className="p-2 text-foreground/80 hover:text-foreground transition-colors">
+        <button onClick={toggleSidebar} className="p-2 text-slate-300 hover:text-white transition-colors">
           <Menu size={24} />
         </button>
       </div>
@@ -75,7 +75,7 @@ export function AppSidebar() {
 
       {/* Sidebar Content */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-64"} border-r border-border/50 bg-card text-card-foreground flex flex-col transition-all duration-300 md:static md:translate-x-0 shadow-sm ${
+        className={`fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-20" : "w-64"} border-r border-slate-800 bg-[#0F172A] text-slate-200 flex flex-col transition-all duration-300 md:static md:translate-x-0 shadow-sm ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -87,7 +87,7 @@ export function AppSidebar() {
           {isCollapsed ? (
             <button 
               onClick={() => setIsCollapsed(false)} 
-              className="absolute inset-0 m-auto w-8 h-8 hidden md:flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 z-50 rounded-md opacity-0 group-hover:opacity-100 cursor-pointer shadow-sm border border-border/50 bg-background"
+              className="absolute inset-0 m-auto w-8 h-8 hidden md:flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200 z-50 rounded-md opacity-0 group-hover:opacity-100 cursor-pointer shadow-sm border border-slate-700 bg-[#0F172A]"
               aria-label="Expand Sidebar"
             >
               <PanelLeftOpen size={18} />
@@ -95,14 +95,14 @@ export function AppSidebar() {
           ) : (
             <button 
               onClick={() => setIsCollapsed(true)} 
-              className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors z-50 w-8 h-8 rounded-md cursor-pointer shadow-sm border border-border/50 bg-background opacity-0 group-hover:opacity-100"
+              className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors z-50 w-8 h-8 rounded-md cursor-pointer shadow-sm border border-slate-700 bg-[#0F172A] opacity-0 group-hover:opacity-100"
               aria-label="Collapse Sidebar"
             >
               <PanelLeftClose size={18} />
             </button>
           )}
 
-          <button onClick={toggleSidebar} className="p-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-md md:hidden absolute right-3 top-1/2 -translate-y-1/2 transition-colors">
+          <button onClick={toggleSidebar} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-md md:hidden absolute right-3 top-1/2 -translate-y-1/2 transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -114,7 +114,7 @@ export function AppSidebar() {
             <div className="mt-8 mb-4 px-3">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles size={14} className="text-lwt-blue" />
-                <span className="text-xs font-semibold text-foreground/60 uppercase tracking-wider">Quick Actions</span>
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Actions</span>
               </div>
               <div className="space-y-2">
                 <Link href="/dashboard/projects" className="block w-full">
@@ -123,12 +123,12 @@ export function AppSidebar() {
                   </Button>
                 </Link>
                 <Link href="/dashboard/projects" className="block w-full">
-                  <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
+                  <Button variant="outline" className="w-full justify-start gap-2 border-slate-700 bg-transparent hover:bg-white/5 text-slate-300 rounded-lg h-10 shadow-sm">
                     <UserPlus size={16} /> Join Project
                   </Button>
                 </Link>
                 <Link href="/dashboard/projects" className="block w-full">
-                  <Button variant="outline" className="w-full justify-start gap-2 border-border/60 hover:bg-muted/50 rounded-lg h-10 shadow-sm">
+                  <Button variant="outline" className="w-full justify-start gap-2 border-slate-700 bg-transparent hover:bg-white/5 text-slate-300 rounded-lg h-10 shadow-sm">
                     <Bot size={16} /> AI Project Planner
                   </Button>
                 </Link>
@@ -137,20 +137,20 @@ export function AppSidebar() {
           )}
         </nav>
 
-        <div className="p-4 border-t border-border/50 flex flex-col gap-3 shrink-0 bg-muted/10">
+        <div className="p-4 border-t border-slate-800 flex flex-col gap-3 shrink-0 bg-[#0B1121]">
           <div className={`flex items-center ${isCollapsed ? "flex-col gap-4" : "justify-between"} w-full`}>
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "gap-3 w-full overflow-hidden"}`}>
               <UserButton 
                 appearance={{ 
                   elements: { 
-                    userButtonAvatarBox: "w-9 h-9 border border-border/50 shadow-sm" 
+                    userButtonAvatarBox: "w-9 h-9 border border-slate-700 shadow-sm" 
                   } 
                 }} 
               />
               {!isCollapsed && (
                 <div className="flex flex-col truncate">
-                  <span className="text-sm font-semibold truncate">{user?.fullName || "User"}</span>
-                  <span className="text-[11px] text-muted-foreground font-medium truncate capitalize">Student</span>
+                  <span className="text-sm font-semibold text-white truncate">{user?.fullName || "User"}</span>
+                  <span className="text-[11px] text-slate-400 font-medium truncate capitalize">Student</span>
                 </div>
               )}
             </div>
