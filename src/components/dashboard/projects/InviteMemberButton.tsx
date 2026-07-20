@@ -9,7 +9,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { inviteMemberToProject } from "@/app/actions/projects";
 
@@ -46,11 +45,12 @@ export default function InviteMemberButton({ projectId }: { projectId: string })
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button className="bg-[image:var(--brand-gradient)] flex items-center gap-2 text-white px-4 py-2 rounded-md font-medium text-sm shadow-sm hover:opacity-90 transition-opacity">
-          <Plus className="h-4 w-4" /> Invite Member
-        </button>
-      </DialogTrigger>
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="bg-[image:var(--brand-gradient)] flex items-center gap-2 text-white px-4 py-2 rounded-md font-medium text-sm shadow-sm hover:opacity-90 transition-opacity"
+      >
+        <Plus className="h-4 w-4" /> Invite Member
+      </button>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Invite a Member</DialogTitle>
