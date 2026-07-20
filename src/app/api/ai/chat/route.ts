@@ -1,6 +1,5 @@
 import { requireUser } from "@/lib/auth-sync";
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import Groq from "groq-sdk";
 
@@ -36,10 +35,28 @@ export async function POST(req: Request) {
       take: 10,
     });
 
+    // Fetch user context for PM tools
+    let userContextStr = "";
+    if (persona === "PM") {
+      const orgs = await prisma.organizationMember.findMany({
+        where: { userId },
+        include: { organization: true },
+      });
+      const orgList = orgs.map(o => ({ id: o.organizationId, name: o.organization.name }));
+      
+      const projects = await prisma.projectMember.findMany({
+        where: { userId },
+        include: { project: true },
+      });
+      const projectList = projects.map(p => ({ id: p.projectId, name: p.project.name, organizationId: p.project.organizationId }));
+
+      userContextStr = `\nUser Context:\nAvailable Organizations (ID: Name): ${JSON.stringify(orgList)}\nAvailable Projects (ID: Name): ${JSON.stringify(projectList)}\nCurrent Project ID (if any): ${projectId || 'None'}\n`;
+    }
+
     // Build persona system prompt
     let systemPrompt = "You are a helpful AI assistant.";
     if (persona === "PM") {
-      systemPrompt = "You are an expert AI Project Manager. Keep responses extremely brief and actionable.";
+      systemPrompt = `You are a strict, highly professional AI Project Manager. You MUST NOT answer random questions, gossip, or engage in small talk. You exist ONLY to manage projects, tasks, and team productivity. Be extremely concise, direct, and actionable. When the user asks you to add a task or create a project, YOU MUST USE THE PROVIDED TOOLS to update the database directly. DO NOT just say you will do it—actually call the tool. ${userContextStr}`;
     } else if (persona === "HR") {
       systemPrompt = "You are an AI HR Representative. Keep responses welcoming, empathetic, and brief.";
     } else if (persona === "TECH_LEAD") {
@@ -51,12 +68,113 @@ export async function POST(req: Request) {
       ...pastMemories.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
 
-    const chatCompletion = await groq.chat.completions.create({
+    const tools: any = persona === "PM" ? [
+      {
+        type: "function",
+        function: {
+          name: "create_task",
+          description: "Create a new task in a project.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Title of the task" },
+              description: { type: "string", description: "Detailed description of the task" },
+              status: { type: "string", enum: ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"], description: "Current status of the task. Default to TODO" },
+              priority: { type: "string", enum: ["LOW", "MEDIUM", "HIGH", "URGENT"], description: "Priority of the task. Default to MEDIUM" },
+              projectId: { type: "string", description: "The UUID of the project. If not provided, try to infer from User Context." }
+            },
+            required: ["title", "status", "priority", "projectId"],
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_project",
+          description: "Create a new project.",
+          parameters: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Name of the project" },
+              description: { type: "string", description: "Description of the project" },
+              organizationId: { type: "string", description: "The UUID of the organization. Infer from User Context." }
+            },
+            required: ["name", "organizationId"],
+          }
+        }
+      }
+    ] : undefined;
+
+    let chatCompletion = await groq.chat.completions.create({
       messages,
-      model: "llama3-8b-8192",
+      model: persona === "PM" ? "llama-3.3-70b-versatile" : "llama3-8b-8192",
+      tools: tools,
+      tool_choice: tools ? "auto" : undefined,
     });
 
-    const aiResponse = chatCompletion.choices[0]?.message?.content || "I'm having trouble processing that.";
+    let aiResponse = chatCompletion.choices[0]?.message?.content || "";
+    const toolCalls = chatCompletion.choices[0]?.message?.tool_calls;
+
+    if (toolCalls && toolCalls.length > 0) {
+      messages.push(chatCompletion.choices[0].message);
+
+      for (const toolCall of toolCalls) {
+        const functionName = toolCall.function.name;
+        const args = JSON.parse(toolCall.function.arguments);
+        let result = "";
+
+        try {
+          if (functionName === "create_task") {
+            const task = await prisma.task.create({
+              data: {
+                projectId: args.projectId,
+                title: args.title,
+                description: args.description || null,
+                status: args.status || "TODO",
+                priority: args.priority || "MEDIUM",
+              }
+            });
+            result = `Task created successfully with ID: ${task.id}`;
+          } else if (functionName === "create_project") {
+            const project = await prisma.project.create({
+              data: {
+                organizationId: args.organizationId,
+                name: args.name,
+                description: args.description || null,
+                status: "ACTIVE",
+                members: {
+                  create: {
+                    userId: userId,
+                    role: "OWNER"
+                  }
+                }
+              }
+            });
+            result = `Project created successfully with ID: ${project.id}`;
+          }
+        } catch (err: any) {
+          result = `Error executing ${functionName}: ${err.message}`;
+          console.error(err);
+        }
+
+        messages.push({
+          tool_call_id: toolCall.id,
+          role: "tool",
+          name: functionName,
+          content: result,
+        });
+      }
+
+      const secondCompletion = await groq.chat.completions.create({
+        messages,
+        model: "llama-3.3-70b-versatile",
+      });
+      aiResponse = secondCompletion.choices[0]?.message?.content || "I have completed the requested action.";
+    }
+
+    if (!aiResponse) {
+      aiResponse = "I'm having trouble processing that.";
+    }
 
     // Store AI Response
     const newMemory = await prisma.aIPersonaMemory.create({
