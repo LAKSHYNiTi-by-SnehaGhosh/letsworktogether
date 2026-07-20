@@ -69,3 +69,7 @@ To run the project locally, the following variables must be configured in the `.
 
 **AI APIs:**
 - `GROQ_API_KEY` (API key for LLM integrations)
+
+## 7. Recent Updates
+- **Auth Activation:** The early access waitlist has been completely removed. Full user Sign Up and Sign In flows via Clerk are now fully active across the application.
+- **UI Consistency:** The global navigation and dashboard sidebars have been updated to enforce a consistent, hardcoded dark-mode aesthetic, preventing unintended color inversions when toggling between light and dark themes.
