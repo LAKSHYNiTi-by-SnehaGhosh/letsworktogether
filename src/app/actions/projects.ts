@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 
@@ -8,15 +8,27 @@ export async function createProject(data: {
   name: string;
   description: string;
 }) {
-  const { userId } = await auth();
+  const clerkUser = await currentUser();
   
-  if (!userId) {
+  if (!clerkUser) {
     throw new Error("Unauthorized");
   }
+  const userId = clerkUser.id;
+  const email = clerkUser.emailAddresses[0]?.emailAddress || "";
 
   try {
     const projectId = randomUUID();
     
+    // Ensure the user exists in our database
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: {
+        id: userId,
+        email: email,
+      }
+    });
+
     // Fix: We need an organization ID. If none, grab the first one the user is part of.
     let userOrg = await prisma.organizationMember.findFirst({
       where: { userId }
