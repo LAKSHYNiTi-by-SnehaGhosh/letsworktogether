@@ -1,6 +1,7 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, auth } from "@clerk/nextjs/server";
+import { requireUser } from "@/lib/auth-sync";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 
@@ -82,7 +83,7 @@ export async function createProject(data: {
 }
 
 export async function joinProject(projectId: string) {
-  const { userId } = await auth();
+  const userId = await requireUser();
   if (!userId) throw new Error("Unauthorized");
 
   try {
@@ -96,12 +97,59 @@ export async function joinProject(projectId: string) {
     return { success: true };
   } catch (error) {
     console.error("Error joining project:", error);
-    return { success: false, error: "Failed to join project" };
+    return { success: false, error: "Failed to join project. You may already be a member, or the project doesn't exist." };
+  }
+}
+
+export async function inviteMemberToProject(projectId: string, identifier: string) {
+  const userId = await requireUser();
+  if (!userId) throw new Error("Unauthorized");
+
+  // Verify ownership or admin
+  const member = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: { projectId, userId }
+    }
+  });
+
+  if (!member || (member.role !== "OWNER" && member.role !== "ADMIN")) {
+    return { success: false, error: "Unauthorized to invite members" };
+  }
+
+  // Find user by email or username (using User model's email, or Profile's email if it existed, but User has email)
+  const targetUser = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: identifier,
+        mode: "insensitive"
+      }
+    }
+  });
+
+  if (!targetUser) {
+    return { success: false, error: "No user found with that email address. They must sign up first." };
+  }
+
+  try {
+    await prisma.projectMember.create({
+      data: {
+        projectId,
+        userId: targetUser.id,
+        role: "MEMBER"
+      }
+    });
+    return { success: true, message: `Successfully invited ${targetUser.email} to the project.` };
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return { success: false, error: "User is already a member of this project." };
+    }
+    console.error("Error inviting member:", error);
+    return { success: false, error: "Failed to invite member." };
   }
 }
 
 export async function updateProjectStatus(projectId: string, status: string) {
-  const { userId } = await auth();
+  const userId = await requireUser();
   if (!userId) throw new Error("Unauthorized");
   
   // Verify ownership or admin

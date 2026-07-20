@@ -1,5 +1,6 @@
 import { getProjectMembers } from "@/app/actions/queries";
-import { User, ShieldAlert, Plus, Shield } from "lucide-react";
+import { User, ShieldAlert, Shield } from "lucide-react";
+import InviteMemberButton from "@/components/dashboard/projects/InviteMemberButton";
 
 export default async function ProjectMembersPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,9 +13,7 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
           <h2 className="text-2xl font-bold tracking-tight">Project Members</h2>
           <p className="text-muted-foreground mt-1">Manage who has access to this project.</p>
         </div>
-        <button className="bg-[image:var(--brand-gradient)] flex items-center gap-2 text-white px-4 py-2 rounded-md font-medium text-sm shadow-sm hover:opacity-90 transition-opacity">
-          <Plus className="h-4 w-4" /> Invite Member
-        </button>
+        <InviteMemberButton projectId={id} />
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">

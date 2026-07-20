@@ -9,6 +9,8 @@ import { useUser } from "@clerk/nextjs";
 import { createProject, joinProject } from "@/app/actions/projects";
 import { getUserProjects } from "@/app/actions/queries";
 import { generateSprintForProject } from "@/app/actions/ai";
+import { Suspense } from "react";
+import JoinProjectHandler from "@/components/dashboard/projects/JoinProjectHandler";
 
 import {
   Dialog,
@@ -119,6 +121,13 @@ export default function ProjectsPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto h-full flex flex-col">
+      <Suspense fallback={null}>
+        <JoinProjectHandler 
+          setJoinProjectId={setJoinProjectId} 
+          setIsJoinDialogOpen={setIsJoinDialogOpen} 
+        />
+      </Suspense>
+      
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
