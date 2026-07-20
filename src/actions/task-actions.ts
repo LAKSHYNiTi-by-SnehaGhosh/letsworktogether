@@ -105,3 +105,39 @@ export async function createTask(formData: FormData) {
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+export async function toggleTaskCompletion(taskId: string, completed: boolean) {
+  const user = await currentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Ensure the task belongs to the user
+  const task = await prisma.task.findUnique({ where: { id: taskId } });
+  if (!task) throw new Error("Task not found");
+
+  await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      status: completed ? "DONE" : "TODO",
+    }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/tasks");
+  return { success: true };
+}
+
+export async function deleteTask(taskId: string) {
+  const user = await currentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const task = await prisma.task.findUnique({ where: { id: taskId } });
+  if (!task) throw new Error("Task not found");
+
+  await prisma.task.delete({
+    where: { id: taskId }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/tasks");
+  return { success: true };
+}

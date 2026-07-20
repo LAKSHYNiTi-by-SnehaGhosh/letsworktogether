@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { ArrowRight, Plus, Loader2 } from "lucide-react";
+import { ArrowRight, Plus, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { createTask } from "@/actions/task-actions";
+import { createTask, toggleTaskCompletion, deleteTask } from "@/actions/task-actions";
 
 interface Task {
   id: string;
@@ -51,32 +51,53 @@ export function TodaysTasks({ tasks }: { tasks: Task[] }) {
 
       <div className="space-y-4 flex-1 overflow-y-auto">
         {tasks.map((task) => (
-          <div key={task.id} className="flex items-center justify-between group cursor-pointer hover:bg-muted/30 p-2 -mx-2 rounded-lg transition-colors">
+          <div key={task.id} className="flex items-center justify-between group p-2 -mx-2 rounded-lg transition-colors hover:bg-muted/30">
             <div className="flex items-center gap-3">
-              <div className={cn(
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startTransition(() => {
+                    toggleTaskCompletion(task.id, !task.completed);
+                  });
+                }}
+                disabled={isPending}
+                className={cn(
                 "w-5 h-5 rounded-full border flex items-center justify-center transition-colors shrink-0", 
-                task.completed ? "bg-lwt-blue border-lwt-blue text-white" : "border-border bg-background"
+                task.completed ? "bg-lwt-blue border-lwt-blue text-white" : "border-border bg-background hover:border-lwt-blue"
               )}>
                 {task.completed && (
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
-              </div>
+              </button>
               <span className={cn("text-[14px] font-medium transition-colors", task.completed ? "text-muted-foreground line-through decoration-muted-foreground/50" : "text-foreground")}>
                 {task.title}
               </span>
             </div>
-            
-            {task.priority === "High" && (
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-rose-500/10 text-rose-500 border border-rose-500/20 shrink-0">High</span>
-            )}
-            {task.priority === "Medium" && (
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">Medium</span>
-            )}
-            {task.priority === "Low" && (
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-slate-500/10 text-slate-500 border border-slate-500/20 shrink-0">Low</span>
-            )}
+            <div className="flex items-center gap-2">
+              {task.priority === "High" && (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-rose-500/10 text-rose-500 border border-rose-500/20 shrink-0">High</span>
+              )}
+              {task.priority === "Medium" && (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">Medium</span>
+              )}
+              {task.priority === "Low" && (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-medium bg-slate-500/10 text-slate-500 border border-slate-500/20 shrink-0">Low</span>
+              )}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startTransition(() => {
+                    deleteTask(task.id);
+                  });
+                }}
+                disabled={isPending}
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 p-1 rounded-md hover:bg-red-500/10"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
         ))}
 

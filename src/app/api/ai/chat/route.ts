@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth-sync";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Groq from "groq-sdk";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   try {
@@ -50,13 +51,20 @@ export async function POST(req: Request) {
       });
       const projectList = projects.map(p => ({ id: p.projectId, name: p.project.name, organizationId: p.project.organizationId }));
 
-      userContextStr = `\nUser Context:\nAvailable Organizations (ID: Name): ${JSON.stringify(orgList)}\nAvailable Projects (ID: Name): ${JSON.stringify(projectList)}\nCurrent Project ID (if any): ${projectId || 'None'}\n`;
+      const activeTasks = await prisma.task.findMany({
+        where: { assigneeId: userId, status: { not: "DONE" } },
+        orderBy: { updatedAt: "desc" },
+        take: 10
+      });
+      const taskList = activeTasks.map(t => ({ id: t.id, title: t.title, status: t.status }));
+
+      userContextStr = `\nUser Context:\nAvailable Organizations (ID: Name): ${JSON.stringify(orgList)}\nAvailable Projects (ID: Name): ${JSON.stringify(projectList)}\nUser's Active Tasks (ID: Title): ${JSON.stringify(taskList)}\nCurrent Project ID (if any): ${projectId || 'None'}\n`;
     }
 
     // Build persona system prompt
     let systemPrompt = "You are a helpful AI assistant.";
     if (persona === "PM") {
-      systemPrompt = `You are a strict, highly professional AI Project Manager. You MUST NOT answer random questions, gossip, or engage in small talk. You exist ONLY to manage projects, tasks, and team productivity. Be extremely concise, direct, and actionable. When the user asks you to add a task or create a project, YOU MUST USE THE PROVIDED TOOLS to update the database directly. DO NOT just say you will do it—actually call the tool. ${userContextStr}`;
+      systemPrompt = `You are a strict, highly professional AI Project Manager. You MUST NOT answer random questions, gossip, or engage in small talk. You exist ONLY to manage projects, tasks, and team productivity. Be extremely concise, direct, and actionable. When the user asks you to add, update, complete, or delete a task or project, YOU MUST USE THE PROVIDED TOOLS to update the database directly. DO NOT just say you will do it—actually call the tool. ${userContextStr}`;
     } else if (persona === "HR") {
       systemPrompt = "You are an AI HR Representative. Keep responses welcoming, empathetic, and brief.";
     } else if (persona === "TECH_LEAD") {
@@ -100,6 +108,35 @@ export async function POST(req: Request) {
               organizationId: { type: "string", description: "The UUID of the organization. Infer from User Context." }
             },
             required: ["name", "organizationId"],
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "update_task",
+          description: "Update an existing task's status (e.g. to mark it as DONE or TODO).",
+          parameters: {
+            type: "object",
+            properties: {
+              taskId: { type: "string", description: "The UUID of the task to update" },
+              status: { type: "string", enum: ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"] },
+            },
+            required: ["taskId", "status"],
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "delete_task",
+          description: "Delete a task.",
+          parameters: {
+            type: "object",
+            properties: {
+              taskId: { type: "string", description: "The UUID of the task to delete" }
+            },
+            required: ["taskId"],
           }
         }
       }
@@ -152,6 +189,17 @@ export async function POST(req: Request) {
               }
             });
             result = `Project created successfully with ID: ${project.id}`;
+          } else if (functionName === "update_task") {
+            const task = await prisma.task.update({
+              where: { id: args.taskId },
+              data: { status: args.status }
+            });
+            result = `Task ${args.taskId} updated successfully to status ${args.status}.`;
+          } else if (functionName === "delete_task") {
+            await prisma.task.delete({
+              where: { id: args.taskId }
+            });
+            result = `Task ${args.taskId} deleted successfully.`;
           }
         } catch (err: any) {
           result = `Error executing ${functionName}: ${err.message}`;
@@ -171,6 +219,10 @@ export async function POST(req: Request) {
         model: "llama-3.3-70b-versatile",
       });
       aiResponse = secondCompletion.choices[0]?.message?.content || "I have completed the requested action.";
+
+      // Revalidate dashboard so the UI reflects the DB changes immediately
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/tasks");
     }
 
     if (!aiResponse) {
