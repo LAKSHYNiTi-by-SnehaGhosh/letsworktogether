@@ -132,6 +132,7 @@ export async function POST(req: Request) {
                 description: args.description || null,
                 status: args.status || "TODO",
                 priority: args.priority || "MEDIUM",
+                assigneeId: userId,
               }
             });
             result = `Task created successfully with ID: ${task.id}`;
