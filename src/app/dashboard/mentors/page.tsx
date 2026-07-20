@@ -50,11 +50,11 @@ export default async function MentorsPage() {
       {!isPro && (
         <div className="bg-lwt-blue/10 border border-lwt-blue/20 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="font-semibold text-lwt-blue">Developer Pro Required</h3>
-            <p className="text-sm text-muted-foreground">You need the Developer Pro plan to book human mentors.</p>
+            <h3 className="font-semibold text-lwt-blue">Pro Plan Required</h3>
+            <p className="text-sm text-muted-foreground">The free tier does not have access to book human mentors. You need to upgrade your plan to unlock this feature.</p>
           </div>
           <Link href="/dashboard/billing">
-            <Button className="bg-lwt-blue text-white hover:bg-lwt-blue/90 shrink-0">Upgrade to Pro</Button>
+            <Button className="bg-lwt-blue text-white hover:bg-lwt-blue/90 shrink-0">Upgrade Now</Button>
           </Link>
         </div>
       )}
