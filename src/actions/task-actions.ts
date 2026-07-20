@@ -48,7 +48,9 @@ export async function createTask(formData: FormData) {
     } else {
         // Find user profile to get some default org if needed?
         // Actually, many users might not even have an org.
-        // Let's create an organization and a project if none exists.
+        const adminRole = await prisma.role.findFirst({ where: { name: "Admin" } }) || 
+                          await prisma.role.create({ data: { name: "Admin" } });
+
         const org = await prisma.organization.create({
             data: {
                 name: "My Workspace",
@@ -56,7 +58,7 @@ export async function createTask(formData: FormData) {
                 members: {
                     create: {
                         userId: user.id,
-                        roleId: "00000000-0000-0000-0000-000000000000" // We'd need a valid roleId. This is tricky.
+                        roleId: adminRole.id
                     }
                 }
             }
@@ -65,6 +67,23 @@ export async function createTask(formData: FormData) {
         if (!org) {
             throw new Error("You must belong to an organization to create tasks.");
         }
+
+        const newProject = await prisma.project.create({
+            data: {
+                name: "Personal Tasks",
+                status: "ACTIVE",
+                organizationId: org.id,
+                members: {
+                    create: {
+                        userId: user.id,
+                        role: "OWNER"
+                    }
+                }
+            }
+        });
+        projectId = newProject.id;
+
+
     }
   }
   
