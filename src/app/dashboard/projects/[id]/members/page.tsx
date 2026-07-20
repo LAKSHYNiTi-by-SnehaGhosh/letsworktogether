@@ -35,7 +35,7 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
                 </span>
               </div>
               <div className="text-sm text-muted-foreground truncate pr-4">
-                {member.userId}
+                {member.user?.email || member.userId}
               </div>
               <div>
                 <span className={`text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1.5 w-fit ${

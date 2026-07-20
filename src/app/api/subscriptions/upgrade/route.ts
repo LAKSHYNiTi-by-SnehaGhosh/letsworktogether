@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     // upgrade the user immediately for testing purposes.
 
     await prisma.user.update({
-      where: { email: clerkUser.emailAddresses[0].emailAddress },
+      where: { id: clerkUser.id },
       data: {
         subscriptionPlan: "PRO",
         aiTotalLimit: 1000000 // practically unlimited for PRO

@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: clerkUser.emailAddresses[0].emailAddress },
+      where: { id: clerkUser.id },
       include: { mentorProfile: true }
     });
 

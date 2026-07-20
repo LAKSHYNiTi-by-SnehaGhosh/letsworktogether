@@ -11,7 +11,7 @@ export default async function MentorsPage() {
   if (!clerkUser) redirect("/sign-in");
 
   const user = await prisma.user.findUnique({
-    where: { email: clerkUser.emailAddresses[0].emailAddress },
+    where: { id: clerkUser.id },
     include: { mentorProfile: true }
   });
 
