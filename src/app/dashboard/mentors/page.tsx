@@ -48,14 +48,21 @@ export default async function MentorsPage() {
       </div>
 
       {!isPro && (
-        <div className="bg-lwt-blue/10 border border-lwt-blue/20 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h3 className="font-semibold text-lwt-blue">Pro Plan Required</h3>
-            <p className="text-sm text-muted-foreground">The free tier does not have access to book human mentors. You need to upgrade your plan to unlock this feature.</p>
+        <div className="bg-lwt-blue/5 border border-lwt-blue/20 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-lwt-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+          <div className="relative z-10">
+            <h3 className="text-lg font-bold text-lwt-blue mb-1">Elevate Your Journey with Pro</h3>
+            <p className="text-sm text-muted-foreground max-w-xl">
+              1-on-1 mentorship sessions are exclusively available for Pro members. Upgrade your plan today to unlock personalized guidance from top industry experts and accelerate your career.
+            </p>
           </div>
-          <Link href="/dashboard/billing">
-            <Button className="bg-lwt-blue text-white hover:bg-lwt-blue/90 shrink-0">Upgrade Now</Button>
-          </Link>
+          <div className="relative z-10 shrink-0">
+            <Link href="/dashboard/billing">
+              <Button className="bg-[image:var(--brand-gradient)] border-0 text-white shadow-md hover:opacity-90 w-full sm:w-auto">
+                Unlock Mentorship
+              </Button>
+            </Link>
+          </div>
         </div>
       )}
 
