@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 
@@ -10,17 +10,29 @@ export async function completeOnboarding(data: {
   projectDescription: string;
   memberCount: number;
 }) {
-  const { userId } = await auth();
+  const clerkUser = await currentUser();
   
-  if (!userId) {
+  if (!clerkUser) {
     throw new Error("Unauthorized");
   }
+  const userId = clerkUser.id;
+  const email = clerkUser.emailAddresses[0]?.emailAddress || "";
 
-    try {
+  try {
     const projectId = randomUUID();
     const orgId = randomUUID();
     
     await prisma.$transaction(async (tx) => {
+      // Ensure the user exists in our database
+      await tx.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: {
+          id: userId,
+          email: email,
+        }
+      });
+
       // Create a default role if it doesn't exist
       const adminRole = await tx.role.findFirst({ where: { name: "Admin" } }) || 
                         await tx.role.create({ data: { name: "Admin" } });
