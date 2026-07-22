@@ -89,67 +89,113 @@ export async function getProjectMilestones(projectId: string) {
 }
 
 export async function getProjectMembers(projectId: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  return prisma.projectMember.findMany({
-    where: { projectId },
-    include: { user: { include: { profile: true } } }
-  });
+  if (!projectId) return [];
+  try {
+    const { userId } = await auth();
+    if (!userId) return [];
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, organizationId: true }
+    });
+
+    if (!project) return [];
+
+    const members = await prisma.projectMember.findMany({
+      where: { projectId },
+      include: {
+        user: {
+          include: { profile: true }
+        }
+      },
+      orderBy: { createdAt: "asc" }
+    });
+
+    return members;
+  } catch (error) {
+    console.error("Error fetching project members:", error);
+    return [];
+  }
 }
 
 export async function getProjectDetails(projectId: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  return prisma.project.findUnique({
-    where: { id: projectId },
-    include: { 
-      milestones: true, 
-      members: { include: { user: { include: { profile: true } } } } 
-    }
-  });
+  if (!projectId) return null;
+  try {
+    const { userId } = await auth();
+    if (!userId) return null;
+
+    return await prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        milestones: true,
+        members: { include: { user: { include: { profile: true } } } },
+        organization: true
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching project details:", error);
+    return null;
+  }
 }
 
 export async function getProjectAnalytics(projectId: string) {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) return { totalTasks: 0, completedTasks: 0, milestones: [], submissions: 0 };
   
-  const [totalTasks, completedTasks, milestones, submissions] = await Promise.all([
-    prisma.task.count({ where: { projectId } }),
-    prisma.task.count({ where: { projectId, status: "DONE" } }),
-    prisma.milestone.findMany({ where: { projectId }, include: { tasks: true } }),
-    prisma.taskSubmission.count({ where: { task: { projectId } } })
-  ]);
-  
-  return { totalTasks, completedTasks, milestones, submissions };
+  try {
+    const [totalTasks, completedTasks, milestones, submissions] = await Promise.all([
+      prisma.task.count({ where: { projectId } }),
+      prisma.task.count({ where: { projectId, status: "DONE" } }),
+      prisma.milestone.findMany({ where: { projectId }, include: { tasks: true } }),
+      prisma.taskSubmission.count({ where: { task: { projectId } } })
+    ]);
+    
+    return { totalTasks, completedTasks, milestones, submissions };
+  } catch (error) {
+    console.error("Error fetching project analytics:", error);
+    return { totalTasks: 0, completedTasks: 0, milestones: [], submissions: 0 };
+  }
 }
 
 export async function getUserPendingInvitations() {
-  const { userId } = await auth();
-  if (!userId) return [];
-  
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || !user.email) return [];
-  
-  return prisma.projectInvitation.findMany({
-    where: { 
-      email: {
-        equals: user.email,
-        mode: "insensitive"
+  try {
+    const { userId } = await auth();
+    if (!userId) return [];
+    
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.email) return [];
+    
+    return await prisma.projectInvitation.findMany({
+      where: { 
+        email: {
+          equals: user.email,
+          mode: "insensitive"
+        },
+        status: "PENDING"
       },
-      status: "PENDING"
-    },
-    include: {
-      project: true
-    },
-    orderBy: { createdAt: "desc" }
-  });
+      include: {
+        project: true
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  } catch (error) {
+    console.error("Error fetching user pending invitations:", error);
+    return [];
+  }
 }
 
 export async function getProjectInvitations(projectId: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-  return prisma.projectInvitation.findMany({
-    where: { projectId, status: "PENDING" },
-    orderBy: { createdAt: "desc" }
-  });
+  if (!projectId) return [];
+  try {
+    const { userId } = await auth();
+    if (!userId) return [];
+
+    return await prisma.projectInvitation.findMany({
+      where: { projectId, status: "PENDING" },
+      orderBy: { createdAt: "desc" }
+    });
+  } catch (error) {
+    console.error("Error fetching project invitations:", error);
+    return [];
+  }
 }

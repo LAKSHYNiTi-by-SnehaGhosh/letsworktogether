@@ -1,103 +1,81 @@
-import { getProjectMembers, getProjectInvitations } from "@/app/actions/queries";
-import { User, ShieldAlert, Shield } from "lucide-react";
-import InviteMemberButton from "@/components/dashboard/projects/InviteMemberButton";
+import { auth } from "@clerk/nextjs/server";
+import { getProjectDetails, getProjectMembers, getProjectInvitations } from "@/app/actions/queries";
+import ProjectMembersClient from "@/components/dashboard/projects/ProjectMembersClient";
+import Link from "next/link";
+import { FolderX, ShieldAlert, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default async function ProjectMembersPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  if (!id) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center space-y-4 pt-16">
+        <FolderX className="h-12 w-12 text-muted-foreground mx-auto" />
+        <h2 className="text-xl font-bold">Invalid Project URL</h2>
+        <p className="text-sm text-muted-foreground">The project ID specified in the URL is missing or invalid.</p>
+        <Button asChild><Link href="/dashboard/projects">Back to Projects</Link></Button>
+      </div>
+    );
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center space-y-4 pt-16">
+        <ShieldAlert className="h-12 w-12 text-amber-500 mx-auto" />
+        <h2 className="text-xl font-bold">Authentication Required</h2>
+        <p className="text-sm text-muted-foreground">Please sign in to access project member management.</p>
+        <Button asChild><Link href="/sign-in">Sign In</Link></Button>
+      </div>
+    );
+  }
+
+  const project = await getProjectDetails(id);
+  if (!project) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center space-y-4 pt-16">
+        <FolderX className="h-12 w-12 text-rose-500 mx-auto" />
+        <h2 className="text-2xl font-bold">Project Not Found</h2>
+        <p className="text-sm text-muted-foreground">The requested project could not be found or has been removed.</p>
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/projects">
+            <ArrowLeft className="h-4 w-4" /> Return to Projects
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const userMember = project.members.find((m: any) => m.userId === userId);
+  const isOrgMember = project.organization?.members?.find((m: any) => m.userId === userId);
+
+  if (!userMember && !isOrgMember) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center space-y-4 pt-16">
+        <ShieldAlert className="h-12 w-12 text-amber-500 mx-auto" />
+        <h2 className="text-2xl font-bold">Permission Denied</h2>
+        <p className="text-sm text-muted-foreground">You do not have permission to view or manage members for this project.</p>
+        <Button asChild className="gap-2">
+          <Link href="/dashboard/projects">
+            <ArrowLeft className="h-4 w-4" /> Return to Projects
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const currentUserRole = userMember?.role || (isOrgMember ? "ADMIN" : "MEMBER");
   const members = await getProjectMembers(id);
   const pendingInvites = await getProjectInvitations(id);
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Project Members</h2>
-          <p className="text-muted-foreground mt-1">Manage who has access to this project.</p>
-        </div>
-        <InviteMemberButton projectId={id} />
-      </div>
-
-      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 bg-muted/30 border-b border-border/50 text-sm font-semibold text-muted-foreground">
-          <div>User</div>
-          <div>Email / ID</div>
-          <div>Role</div>
-          <div>Joined</div>
-        </div>
-        <div className="divide-y divide-border/50">
-          {members.map((member: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
-            <div key={member.id} className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 items-center hover:bg-muted/10 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase">
-                  {member.user?.profile?.firstName?.[0] || <User className="h-4 w-4" />}
-                </div>
-                <span className="font-medium">
-                  {member.user?.profile?.firstName ? `${member.user.profile.firstName} ${member.user.profile.lastName}` : 'Unknown User'}
-                </span>
-              </div>
-              <div className="text-sm text-muted-foreground truncate pr-4">
-                {member.user?.email || member.userId}
-              </div>
-              <div>
-                <span className={`text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1.5 w-fit ${
-                  member.role === 'OWNER' ? 'bg-primary/10 text-primary' :
-                  member.role === 'ADMIN' ? 'bg-orange-500/10 text-orange-500' :
-                  'bg-secondary text-secondary-foreground'
-                }`}>
-                  {member.role === 'OWNER' && <ShieldAlert className="h-3 w-3" />}
-                  {member.role === 'ADMIN' && <Shield className="h-3 w-3" />}
-                  {member.role}
-                </span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {new Date(member.createdAt).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
-          {members.length === 0 && pendingInvites.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
-              No members found.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {pendingInvites.length > 0 && (
-        <div className="mt-8 bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-          <div className="p-4 bg-muted/30 border-b border-border/50">
-            <h3 className="font-semibold">Pending Invitations</h3>
-          </div>
-          <div className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 bg-muted/10 border-b border-border/50 text-sm font-semibold text-muted-foreground">
-            <div>User</div>
-            <div>Email / ID</div>
-            <div>Role</div>
-            <div>Invited On</div>
-          </div>
-          <div className="divide-y divide-border/50">
-            {pendingInvites.map((invite: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
-              <div key={invite.id} className="grid grid-cols-[1fr_2fr_1fr_1fr] p-4 items-center hover:bg-muted/10 transition-colors opacity-70">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-xs">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <span className="font-medium italic">Pending...</span>
-                </div>
-                <div className="text-sm text-muted-foreground truncate pr-4">
-                  {invite.email}
-                </div>
-                <div>
-                  <span className="text-xs px-2 py-1 rounded-md font-medium bg-secondary text-secondary-foreground">
-                    {invite.role}
-                  </span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {new Date(invite.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <ProjectMembersClient
+      projectId={project.id}
+      projectName={project.name}
+      initialMembers={members}
+      initialPendingInvites={pendingInvites}
+      currentUserRole={currentUserRole}
+    />
   );
 }

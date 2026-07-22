@@ -185,7 +185,8 @@ export async function getInvitationDetails(token: string) {
   }
 
   try {
-    const invitation = await prisma.organizationInvitation.findUnique({
+    // 1. Try OrganizationInvitation first
+    const orgInvitation = await prisma.organizationInvitation.findUnique({
       where: { token },
       include: {
         organization: true,
@@ -195,65 +196,111 @@ export async function getInvitationDetails(token: string) {
       },
     });
 
-    if (!invitation) {
-      return { success: false, error: "INVITATION_NOT_FOUND", message: "Invitation not found or link is invalid." };
-    }
+    if (orgInvitation) {
+      const now = new Date();
+      if (orgInvitation.status === "PENDING" && orgInvitation.expiresAt < now) {
+        await prisma.organizationInvitation.update({
+          where: { id: orgInvitation.id },
+          data: { status: "EXPIRED" },
+        });
+        orgInvitation.status = "EXPIRED";
+      }
 
-    const now = new Date();
-    if (invitation.status === "PENDING" && invitation.expiresAt < now) {
-      await prisma.organizationInvitation.update({
-        where: { id: invitation.id },
-        data: { status: "EXPIRED" },
-      });
-      invitation.status = "EXPIRED";
-    }
+      if (orgInvitation.status === "EXPIRED") {
+        return {
+          success: false,
+          error: "INVITATION_EXPIRED",
+          message: "This invitation link has expired. Please ask the inviter to resend your invite.",
+          invitation: orgInvitation,
+        };
+      }
 
-    if (invitation.status === "EXPIRED") {
+      if (orgInvitation.status === "REVOKED") {
+        return {
+          success: false,
+          error: "INVITATION_REVOKED",
+          message: "This invitation has been revoked by the organization administrator.",
+          invitation: orgInvitation,
+        };
+      }
+
+      if (orgInvitation.status === "ACCEPTED") {
+        return {
+          success: false,
+          error: "INVITATION_ACCEPTED",
+          message: "This invitation has already been accepted.",
+          invitation: orgInvitation,
+        };
+      }
+
+      const inviterProfile = orgInvitation.invitedBy?.profile;
+      const inviterName = inviterProfile
+        ? `${inviterProfile.firstName} ${inviterProfile.lastName}`.trim()
+        : "An Administrator";
+
       return {
-        success: false,
-        error: "INVITATION_EXPIRED",
-        message: "This invitation link has expired. Please ask the inviter to resend your invite.",
-        invitation,
+        success: true,
+        isProject: false,
+        invitation: {
+          id: orgInvitation.id,
+          token: orgInvitation.token,
+          email: orgInvitation.email,
+          roleName: orgInvitation.roleName,
+          status: orgInvitation.status,
+          expiresAt: orgInvitation.expiresAt,
+          organizationName: orgInvitation.organization.name,
+          organizationSlug: orgInvitation.organization.slug,
+          inviterName,
+        },
       };
     }
 
-    if (invitation.status === "REVOKED") {
-      return {
-        success: false,
-        error: "INVITATION_REVOKED",
-        message: "This invitation has been revoked by the organization administrator.",
-        invitation,
-      };
-    }
-
-    if (invitation.status === "ACCEPTED") {
-      return {
-        success: false,
-        error: "INVITATION_ACCEPTED",
-        message: "This invitation has already been accepted.",
-        invitation,
-      };
-    }
-
-    const inviterProfile = invitation.invitedBy.profile;
-    const inviterName = inviterProfile
-      ? `${inviterProfile.firstName} ${inviterProfile.lastName}`.trim()
-      : "An Administrator";
-
-    return {
-      success: true,
-      invitation: {
-        id: invitation.id,
-        token: invitation.token,
-        email: invitation.email,
-        roleName: invitation.roleName,
-        status: invitation.status,
-        expiresAt: invitation.expiresAt,
-        organizationName: invitation.organization.name,
-        organizationSlug: invitation.organization.slug,
-        inviterName,
+    // 2. Fallback to ProjectInvitation
+    const projectInvitation = await prisma.projectInvitation.findUnique({
+      where: { token },
+      include: {
+        project: true,
       },
-    };
+    });
+
+    if (projectInvitation) {
+      if (projectInvitation.status === "ACCEPTED") {
+        return {
+          success: false,
+          error: "INVITATION_ACCEPTED",
+          message: "This project invitation has already been accepted.",
+          invitation: projectInvitation,
+        };
+      }
+
+      if (projectInvitation.status === "REJECTED") {
+        return {
+          success: false,
+          error: "INVITATION_REVOKED",
+          message: "This project invitation has been cancelled or rejected.",
+          invitation: projectInvitation,
+        };
+      }
+
+      return {
+        success: true,
+        isProject: true,
+        invitation: {
+          id: projectInvitation.id,
+          token: projectInvitation.token,
+          email: projectInvitation.email,
+          roleName: projectInvitation.role,
+          status: projectInvitation.status,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 7 days
+          organizationName: projectInvitation.project.name,
+          organizationSlug: projectInvitation.project.id,
+          inviterName: "Project Administrator",
+          projectId: projectInvitation.projectId,
+        },
+      };
+    }
+
+    return { success: false, error: "INVITATION_NOT_FOUND", message: "Invitation not found or link is invalid." };
   } catch (error: any) {
     console.error("Error retrieving invitation details:", error);
     return { success: false, error: "SERVER_ERROR", message: "Failed to load invitation details." };
@@ -267,13 +314,23 @@ export async function acceptOrganizationInvitation(token: string) {
   }
 
   try {
-    const invitation = await prisma.organizationInvitation.findUnique({
+    let invitation = await prisma.organizationInvitation.findUnique({
       where: { token },
       include: { organization: true },
     });
 
     if (!invitation) {
-      return { success: false, error: "Invitation not found." };
+      // Import acceptProjectInvitation dynamically or call it
+      const { acceptProjectInvitation } = await import("@/app/actions/projects");
+      const projRes = await acceptProjectInvitation(token);
+      if (projRes.success) {
+        return {
+          success: true,
+          projectId: projRes.projectId,
+          message: "You have successfully joined the project!",
+        };
+      }
+      return projRes;
     }
 
     if (invitation.status === "ACCEPTED") {
