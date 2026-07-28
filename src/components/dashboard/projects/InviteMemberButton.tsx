@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Loader2, Link as LinkIcon, CheckCircle2 } from "lucide-react";
+import { Plus, Loader2, Link as LinkIcon, CheckCircle2, Mail, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,11 +11,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { inviteMemberToProject } from "@/app/actions/projects";
+import { toast } from "sonner";
 
 export default function InviteMemberButton({ projectId }: { projectId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [identifier, setIdentifier] = useState("");
+  const [role, setRole] = useState("MEMBER");
   const [isInviting, setIsInviting] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -23,24 +26,36 @@ export default function InviteMemberButton({ projectId }: { projectId: string })
     if (!identifier) return;
 
     setIsInviting(true);
-    const result = await inviteMemberToProject(projectId, identifier);
+    const result = await inviteMemberToProject(projectId, identifier, role);
     setIsInviting(false);
 
     if (result.success) {
-      alert(result.message || "Invitation sent successfully!");
+      toast.success(result.message || "Invitation email sent successfully!");
       setIsOpen(false);
       setIdentifier("");
-      window.location.reload(); // Refresh to see pending invitation
     } else {
-      alert(result.error || "Failed to invite member.");
+      toast.error(result.error || "Failed to send invitation.");
     }
   };
 
-  const handleCopyLink = () => {
-    const inviteLink = `${window.location.origin}/dashboard/projects?joinId=${projectId}`;
-    navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = async () => {
+    setIsCopying(true);
+    try {
+      const targetEmail = identifier.trim() || `guest-${Math.random().toString(36).substring(2, 7)}@invite.lwt.com`;
+      const result = await inviteMemberToProject(projectId, targetEmail, role);
+      if (result.inviteLink) {
+        await navigator.clipboard.writeText(result.inviteLink);
+        setCopied(true);
+        toast.success("Invite link copied to clipboard!");
+        setTimeout(() => setCopied(false), 3000);
+      } else {
+        toast.error(result.error || "Failed to generate invite link.");
+      }
+    } catch (err) {
+      toast.error("Failed to copy link.");
+    } finally {
+      setIsCopying(false);
+    }
   };
 
   return (
@@ -51,49 +66,55 @@ export default function InviteMemberButton({ projectId }: { projectId: string })
       >
         <Plus className="h-4 w-4" /> Invite Member
       </button>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[440px] bg-card border-border/80 shadow-2xl">
         <DialogHeader>
-          <DialogTitle>Invite a Member</DialogTitle>
+          <DialogTitle>Invite to Project</DialogTitle>
           <DialogDescription>
-            Invite a user to this project using their email address, or share the project link with them.
+            Invite a user using their email address, or copy a secure invitation link to share.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleInvite} className="space-y-4 pt-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Email Address or Username</label>
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" /> Email Address
+            </label>
             <input 
               required
+              type="email"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              className="w-full p-2.5 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full p-2.5 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
               placeholder="e.g. user@example.com"
             />
-            <p className="text-xs text-muted-foreground">They will receive an invitation in their dashboard to join the project.</p>
           </div>
-          <div className="flex justify-end pt-2">
-            <Button type="submit" disabled={isInviting} className="bg-[image:var(--brand-gradient)] border-0 text-white shadow-sm w-full">
-              {isInviting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Invite"}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4 text-muted-foreground" /> Role
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-2.5 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+            >
+              <option value="MEMBER">Member</option>
+              <option value="ADMIN">Admin</option>
+              <option value="VIEWER">Viewer</option>
+            </select>
+          </div>
+
+          <div className="pt-2 flex flex-col gap-3">
+            <Button type="submit" disabled={isInviting} className="bg-[image:var(--brand-gradient)] border-0 text-white shadow-sm w-full py-5 font-medium">
+              {isInviting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Email Invitation"}
+            </Button>
+            
+            <Button type="button" variant="outline" onClick={handleCopyLink} disabled={isCopying} className="w-full gap-2 font-medium py-5">
+              {isCopying ? <Loader2 className="h-4 w-4 animate-spin" /> : copied ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <LinkIcon className="h-4 w-4 text-primary" />}
+              {copied ? "Link Copied!" : "Copy Unique Invite Link"}
             </Button>
           </div>
         </form>
-
-        <div className="relative mt-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or share invite link</span>
-          </div>
-        </div>
-
-        <div className="pt-2 flex flex-col gap-2">
-          <p className="text-xs text-muted-foreground text-center">Anyone with this link will be able to join the project directly.</p>
-          <Button variant="outline" onClick={handleCopyLink} className="w-full gap-2 font-medium">
-            {copied ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <LinkIcon className="h-4 w-4" />}
-            {copied ? "Copied to Clipboard" : "Copy Project Link"}
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );
