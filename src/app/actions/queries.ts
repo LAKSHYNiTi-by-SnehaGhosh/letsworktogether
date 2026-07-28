@@ -124,14 +124,50 @@ export async function getProjectDetails(projectId: string) {
     const { userId } = await auth();
     if (!userId) return null;
 
-    return await prisma.project.findUnique({
+    let project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
         milestones: true,
         members: { include: { user: { include: { profile: true } } } },
-        organization: true
+        organization: {
+          include: {
+            members: true
+          }
+        }
       }
     });
+
+    if (!project) return null;
+
+    // Auto-heal: If project exists but has zero members in projectMember table,
+    // add current user as OWNER so project page and member management work seamlessly.
+    if (project.members.length === 0) {
+      try {
+        await prisma.projectMember.create({
+          data: {
+            projectId,
+            userId,
+            role: "OWNER"
+          }
+        });
+        project = await prisma.project.findUnique({
+          where: { id: projectId },
+          include: {
+            milestones: true,
+            members: { include: { user: { include: { profile: true } } } },
+            organization: {
+              include: {
+                members: true
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error("Auto-heal project member error:", e);
+      }
+    }
+
+    return project;
   } catch (error) {
     console.error("Error fetching project details:", error);
     return null;

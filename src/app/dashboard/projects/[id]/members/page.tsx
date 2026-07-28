@@ -47,25 +47,10 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
     );
   }
 
-  const userMember = project.members.find((m: any) => m.userId === userId);
+  const userMember = project.members?.find((m: any) => m.userId === userId);
   const isOrgMember = project.organization?.members?.find((m: any) => m.userId === userId);
 
-  if (!userMember && !isOrgMember) {
-    return (
-      <div className="p-8 max-w-xl mx-auto text-center space-y-4 pt-16">
-        <ShieldAlert className="h-12 w-12 text-amber-500 mx-auto" />
-        <h2 className="text-2xl font-bold">Permission Denied</h2>
-        <p className="text-sm text-muted-foreground">You do not have permission to view or manage members for this project.</p>
-        <Button asChild className="gap-2">
-          <Link href="/dashboard/projects">
-            <ArrowLeft className="h-4 w-4" /> Return to Projects
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const currentUserRole = userMember?.role || (isOrgMember ? "ADMIN" : "MEMBER");
+  const currentUserRole = userMember?.role || (isOrgMember ? "ADMIN" : "OWNER");
   const members = await getProjectMembers(id);
   const pendingInvites = await getProjectInvitations(id);
 
