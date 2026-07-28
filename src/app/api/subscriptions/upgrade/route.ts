@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ensureUserSynced } from "@/lib/user-sync";
 
 export async function POST(req: Request) {
   try {
@@ -9,9 +10,8 @@ export async function POST(req: Request) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
 
-    // In a real implementation with Stripe, we would create a Stripe Checkout Session here
-    // and redirect the user to Stripe. Since Stripe is postponed, we will just 
-    // upgrade the user immediately for testing purposes.
+    // Ensure database user exists before upgrading
+    await ensureUserSynced(clerkUser);
 
     await prisma.user.update({
       where: { id: clerkUser.id },

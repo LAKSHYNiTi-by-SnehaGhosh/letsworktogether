@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { ensureUserSynced } from "@/lib/user-sync";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { ActiveProjects } from "@/components/dashboard/active-projects";
 import { TodaysTasks } from "@/components/dashboard/todays-tasks";
@@ -16,37 +17,49 @@ export default async function DashboardPage() {
   if (!user) return null;
   const firstName = user.firstName || "Colleague";
 
-  // Fetch real data from Prisma
-  const userRecord = await prisma.user.findUnique({
-    where: { id: user.id },
-    include: {
-      profile: true,
-      projectMemberships: {
-        include: {
-          project: {
-            include: {
-              tasks: true,
-              members: {
-                include: { user: { include: { profile: true } } }
+  // Ensure Clerk user exists in DB on demand
+  await ensureUserSynced(user);
+
+  // Parallel database queries for fast performance
+  const [userRecord, tasksCompletedCount, teamMemberships] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        profile: true,
+        projectMemberships: {
+          include: {
+            project: {
+              include: {
+                tasks: true,
+                members: {
+                  include: { user: { include: { profile: true } } }
+                }
               }
             }
           }
-        }
-      },
-      assignedTasks: {
-        where: {
-          status: { not: "DONE" }
         },
-        orderBy: { dueDate: 'asc' },
-        take: 5
-      },
-      activityLogs: {
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        include: { user: { include: { profile: true } } }
+        assignedTasks: {
+          where: {
+            status: { not: "DONE" }
+          },
+          orderBy: { dueDate: 'asc' },
+          take: 5
+        },
+        activityLogs: {
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          include: { user: { include: { profile: true } } }
+        }
       }
-    }
-  });
+    }),
+    prisma.task.count({
+      where: { assigneeId: user.id, status: "DONE" }
+    }),
+    prisma.teamMember.findMany({
+      where: { userId: user.id },
+      select: { teamId: true }
+    })
+  ]);
 
   if (!userRecord) {
     return (
@@ -55,6 +68,11 @@ export default async function DashboardPage() {
       </div>
     );
   }
+
+  const teamIds = teamMemberships.map(tm => tm.teamId);
+  const teamMembersCount = teamIds.length > 0 
+    ? await prisma.teamMember.count({ where: { teamId: { in: teamIds } } })
+    : 0;
 
   // Format Projects
   const liveProjects = userRecord.projectMemberships.map(pm => {
@@ -66,7 +84,7 @@ export default async function DashboardPage() {
     return {
       id: p.id,
       name: p.name,
-      type: "Project", // Type is missing in schema, using default
+      type: "Project",
       progress,
       sprint: "Current Sprint",
       dueDate: p.endDate ? new Date(p.endDate).toLocaleDateString() : "TBD",
@@ -98,22 +116,9 @@ export default async function DashboardPage() {
   }));
 
   const activeProjectsCount = liveProjects.length;
-  const tasksCompletedCount = await prisma.task.count({
-    where: { assigneeId: user.id, status: "DONE" }
-  });
-  
-  // Count unique team members across teams user is part of
-  const teamMemberships = await prisma.teamMember.findMany({
-    where: { userId: user.id },
-    select: { teamId: true }
-  });
-  const teamIds = teamMemberships.map(tm => tm.teamId);
-  const teamMembersCount = await prisma.teamMember.count({
-    where: { teamId: { in: teamIds } }
-  });
 
   const overallProgress = liveProjects.length > 0 
-    ? Math.round(liveProjects.reduce((acc, p) => acc + p.progress, 0) / liveProjects.length)
+    ? Math.round(liveProjects.reduce((acc: number, p: { progress: number }) => acc + p.progress, 0) / liveProjects.length)
     : 0;
 
   // Empty fallbacks for components without schema mappings

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, CheckCircle2, XCircle, Zap, Users, ShieldCheck, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 
@@ -14,6 +15,7 @@ const navVariants = {
 };
 
 export default function PricingPage() {
+  const { isSignedIn } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "half-yearly" | "yearly">("monthly");
 
@@ -133,8 +135,10 @@ export default function PricingPage() {
                 <span className="text-muted-foreground ml-2">Forever</span>
               </div>
               
-              <Link href="/sign-up" className="block mb-10">
-                <Button className="w-full py-6 rounded-xl" variant="outline">Start for Free</Button>
+              <Link href={isSignedIn ? "/dashboard" : "/sign-up"} className="block mb-10">
+                <Button className="w-full py-6 rounded-xl" variant="outline">
+                  {isSignedIn ? "Go to Dashboard" : "Start for Free"}
+                </Button>
               </Link>
               
               <div className="space-y-4 flex-1">
@@ -199,8 +203,10 @@ export default function PricingPage() {
                   <span className="text-muted-foreground ml-2">/ {billingCycle === "half-yearly" ? "6 months" : billingCycle.replace("ly", "")}</span>
                 </div>
                 
-                <Link href="/sign-up" className="block mb-10">
-                  <Button className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white">Upgrade to Pro</Button>
+                <Link href={isSignedIn ? "/dashboard/billing" : "/sign-up"} className="block mb-10">
+                  <Button className="w-full py-6 rounded-xl border-0 bg-[image:var(--brand-gradient)] shadow-lg hover:shadow-primary/25 text-white">
+                    {isSignedIn ? "Upgrade in Dashboard" : "Upgrade to Pro"}
+                  </Button>
                 </Link>
                 
                 <div className="space-y-4 flex-1">

@@ -5,8 +5,7 @@ const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 // Define routes that require administrative access
 const isAdminRoute = createRouteMatcher([
-  "/dashboard/team/settings(.*)",
-  "/dashboard/billing(.*)"
+  "/dashboard/team/settings(.*)"
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
