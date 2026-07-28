@@ -78,7 +78,7 @@ export default function InviteMemberModal({ onInvitationSent, trigger }: InviteM
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         {trigger || (
           <Button className="gap-2 border-0 bg-[image:var(--brand-gradient)] text-white shadow-md hover:opacity-90 transition-opacity">
             <Plus className="h-4 w-4" /> Invite Member
