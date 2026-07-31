@@ -88,7 +88,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
       const res = await acceptOrganizationInvitation(token);
       if (res.success) {
         setIsAcceptedSuccess(true);
-        toast.success(res.message || "Invitation accepted!");
+        toast.success((res as any).message || "Invitation accepted!");
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);

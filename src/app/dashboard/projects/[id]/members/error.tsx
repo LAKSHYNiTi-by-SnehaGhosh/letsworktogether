@@ -37,11 +37,11 @@ export default function ProjectMembersError({
         <Button onClick={() => reset()} className="gap-2 bg-[image:var(--brand-gradient)] text-white shadow-md">
           <RefreshCw className="h-4 w-4" /> Try Again
         </Button>
-        <Button variant="outline" asChild className="gap-2">
-          <Link href="/dashboard/projects">
+        <Link href="/dashboard/projects">
+          <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to Projects
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

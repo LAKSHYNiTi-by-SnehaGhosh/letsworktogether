@@ -214,7 +214,7 @@ export default function ProjectMembersClient({
 
         {canManage && (
           <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger>
               <Button className="gap-2 bg-[image:var(--brand-gradient)] border-0 text-white shadow-md hover:opacity-90 transition-opacity">
                 <Plus className="h-4 w-4" /> Invite Member
               </Button>

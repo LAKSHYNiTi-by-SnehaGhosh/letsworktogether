@@ -5,6 +5,8 @@ import Link from "next/link";
 import { FolderX, ShieldAlert, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProjectMembersPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -14,7 +16,7 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
         <FolderX className="h-12 w-12 text-muted-foreground mx-auto" />
         <h2 className="text-xl font-bold">Invalid Project URL</h2>
         <p className="text-sm text-muted-foreground">The project ID specified in the URL is missing or invalid.</p>
-        <Button asChild><Link href="/dashboard/projects">Back to Projects</Link></Button>
+        <Link href="/dashboard/projects"><Button>Back to Projects</Button></Link>
       </div>
     );
   }
@@ -26,7 +28,7 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
         <ShieldAlert className="h-12 w-12 text-amber-500 mx-auto" />
         <h2 className="text-xl font-bold">Authentication Required</h2>
         <p className="text-sm text-muted-foreground">Please sign in to access project member management.</p>
-        <Button asChild><Link href="/sign-in">Sign In</Link></Button>
+        <Link href="/sign-in"><Button>Sign In</Button></Link>
       </div>
     );
   }
@@ -38,11 +40,11 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
         <FolderX className="h-12 w-12 text-rose-500 mx-auto" />
         <h2 className="text-2xl font-bold">Project Not Found</h2>
         <p className="text-sm text-muted-foreground">The requested project could not be found or has been removed.</p>
-        <Button asChild className="gap-2">
-          <Link href="/dashboard/projects">
+        <Link href="/dashboard/projects">
+          <Button className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Return to Projects
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     );
   }
