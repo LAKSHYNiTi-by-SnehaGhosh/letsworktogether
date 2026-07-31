@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, AlertTriangle, CheckCircle2, RefreshCw, Shield, Edit2, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, RefreshCw, Edit2, Loader2 } from "lucide-react";
 
 interface AdminApiLimitsTableProps {
   initialUsers: any[];

@@ -3,14 +3,11 @@
 import { useState } from "react";
 import { 
   Search, 
-  Filter, 
   CheckCircle2, 
   Circle, 
   Trash2, 
-  ShieldCheck, 
   Tag, 
   Loader2, 
-  AlertTriangle,
   UserCheck
 } from "lucide-react";
 
