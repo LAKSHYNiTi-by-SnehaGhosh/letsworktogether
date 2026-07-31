@@ -12,6 +12,8 @@ import { SkillProgress } from "@/components/dashboard/skill-progress";
 import { WeeklyContribution } from "@/components/dashboard/weekly-contribution";
 import { Briefcase, CheckCircle, Users, Activity } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const user = await currentUser();
   if (!user) return null;

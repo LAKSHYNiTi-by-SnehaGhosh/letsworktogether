@@ -4,6 +4,8 @@ import { jwtVerify } from "jose";
 import Link from "next/link";
 import { Database, Zap, ArrowLeft, CheckSquare } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-key-please-change-in-production"
 );

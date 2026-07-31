@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminMarketplacePage() {
   const pendingMentors = await prisma.mentorProfile.findMany({
     where: { approvalStatus: "PENDING" },

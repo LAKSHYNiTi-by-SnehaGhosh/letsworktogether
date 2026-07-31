@@ -5,6 +5,8 @@ import { ensureUserSynced } from "@/lib/user-sync";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export default async function MentorRequestPage({ params }: { params: Promise<{ mentorId: string }> | { mentorId: string } }) {
   let clerkUser;
   try {
