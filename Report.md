@@ -23,10 +23,10 @@ To further enhance the platform, the following features could be implemented in 
 - **CI/CD Pipeline Visualizer:** Visual representation of user code deployments and CI/CD pipelines.
 
 ## 3. Current Failures or Issues
-The application has recently passed the build step (`npm run build`) successfully. However, minor technical debt or past issues that may still surface include:
-- **Next.js 15+ Async Params:** Transitioning to Next.js 15+ required changing the App Router's `params` to a Promise format. While mostly fixed (`await params`), some older components might still need alignment.
-- **Prisma Schema Mismatches:** Typing issues during the initial multi-tenant architecture setup were resolved, but database migrations must be carefully managed going forward.
-- Currently, there are no major breaking failures, though minor strict-type warnings or ESLint errors (especially related to Framer Motion or Three.js) may appear during development.
+The application has been verified and passed both production build compilation (`npm run build`) and TypeScript type-checking (`npx tsc --noEmit`) with 0 errors. Key technical debt items addressed include:
+- **Next.js 15+ Async Params:** Resolved App Router `params` Promises using `await params` across all project dynamic routes.
+- **Next.js 16 Config Warnings:** Cleaned up deprecated `eslint` options from `next.config.ts`.
+- **Project Fetching & Navigation:** Fixed project listing bug where projects were not retrieved on initial load by implementing reactive SWR fetching and dedicated authenticated REST API endpoints (`/api/projects`).
 
 ## 4. Languages and Technologies Used
 The project is a modern, enterprise-grade full-stack application built using:
@@ -71,5 +71,10 @@ To run the project locally, the following variables must be configured in the `.
 - `GROQ_API_KEY` (API key for LLM integrations)
 
 ## 7. Recent Updates
+- **Admin Task Audit Matrix & Developer Control Dashboard:** Added a 4-step task verification and auditing system under `/adminpanel/database/tasks_audit` for LWT employees, backend engineers, and database developers. Features step-by-step user task inspection, project/topic filtering, real-time metrics (Total, Active Pending, Completed, Urgent), interactive task completion toggling, priority overrides, and admin task deletion via `/api/admin/tasks/action`.
+- **Strict Tiered AI Quota & Limit Enforcement (Claude B2B / Bolt Model):** Implemented central quota manager (`checkAndIncrementAIQuota` in `src/lib/ai.ts`) enforcing strict AI usage limits based on subscription plans (`FREE`: 50/month, `PRO`: 500/month, `ENTERPRISE`: 5000/month). Enforced across AI PM chat, AI Sprint generator, and diagram tools. Created `/api/admin/quotas` API endpoint and updated `/adminpanel/database/api_limit` to let admins interactively update user plans, edit custom limits, and reset usage counts to zero.
+- **AI Manager & To-Do List System Overhaul:** Fixed the issue where AI Manager / AI PM failed when instructed to add a specific topic or task to the user's to-do list. Made `projectId` optional in tool definitions and implemented automatic fallback project creation (`ensureDefaultProjectForUser`) so tasks are always persisted smoothly regardless of language or project context. Added fuzzy title matching for updating and deleting tasks via AI tool calls. Transformed `/dashboard/tasks` into a full-featured To-Do application supporting manual task/topic creation, task editing, complete/incomplete toggling with visual strikethroughs (`line-through`), task deletion, clearing completed tasks, priority tags (`Urgent`, `High`, `Medium`, `Low`), project/topic categorization badges, and tabbed status/priority filtering (`All`, `Active`, `Completed`).
+- **Project Listing & Navigation Overhaul:** Fixed the User Dashboard Projects page where previously created projects were not fetching or displaying on page load. Implemented dedicated authenticated REST API endpoints (`GET /api/projects` and `GET/PATCH/DELETE /api/projects/[projectId]`), extended server actions to calculate progress %, sprint status, and AI PM metadata, integrated SWR reactive fetching for background revalidations without manual page refresh, added search and status filter controls, redesigned project cards with rich metadata and direct navigation buttons (`Open Project`, `Board`, `Team`, `Settings`), and added a Project Settings modal.
 - **Auth Activation:** The early access waitlist has been completely removed. Full user Sign Up and Sign In flows via Clerk are now fully active across the application.
 - **UI Consistency:** The global navigation and dashboard sidebars have been updated to enforce a consistent, hardcoded dark-mode aesthetic, preventing unintended color inversions when toggling between light and dark themes.
+

@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import Groq from "groq-sdk";
+import { checkAndIncrementAIQuota } from "@/lib/ai";
 
 const DAILY_LIMIT = 5;
 
@@ -14,26 +15,10 @@ export async function generateSprintForProject(projectId: string, prompt: string
     throw new Error("GROQ_API_KEY is not set.");
   }
 
-  // Rate Limiting Logic
-  const userRecord = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { aiUsageCount: true, aiUsageResetDate: true }
-  });
-
-  if (!userRecord) throw new Error("User not found in DB");
-
-  const now = new Date();
-  let currentUsage = userRecord.aiUsageCount;
-  let resetDate = userRecord.aiUsageResetDate;
-
-  // If reset date is empty or from a previous day (comparing YYYY-MM-DD)
-  if (!resetDate || resetDate.toDateString() !== now.toDateString()) {
-    currentUsage = 0;
-    resetDate = now;
-  }
-
-  if (currentUsage >= DAILY_LIMIT) {
-    return { success: false, error: "Your daily AI usage limit is over. Please try again tomorrow." };
+  // Rate Limiting Logic using central quota manager
+  const quotaCheck = await checkAndIncrementAIQuota(userId, "AI_SPRINT_GENERATION");
+  if (!quotaCheck.allowed) {
+    return { success: false, error: quotaCheck.error };
   }
 
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -125,15 +110,6 @@ Only output valid JSON.`;
         }
       }
     }
-
-    // Increment Usage after success
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        aiUsageCount: currentUsage + 1,
-        aiUsageResetDate: resetDate
-      }
-    });
 
     return { success: true };
   } catch (error: unknown) {

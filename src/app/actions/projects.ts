@@ -451,3 +451,53 @@ export async function updateProjectStatus(projectId: string, status: string) {
 
   return { success: true };
 }
+
+export async function deleteProject(projectId: string) {
+  const userId = await requireUser();
+  if (!userId) throw new Error("Unauthorized");
+
+  const member = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: { projectId, userId }
+    }
+  });
+
+  if (!member || member.role !== "OWNER") {
+    return { success: false, error: "Only project owners can delete this project." };
+  }
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { deletedAt: new Date(), status: "ARCHIVED" }
+  });
+
+  return { success: true };
+}
+
+export async function leaveProject(projectId: string) {
+  const userId = await requireUser();
+  if (!userId) throw new Error("Unauthorized");
+
+  const member = await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: { projectId, userId }
+    }
+  });
+
+  if (!member) {
+    return { success: false, error: "You are not a member of this project." };
+  }
+
+  if (member.role === "OWNER") {
+    return { success: false, error: "Project owners cannot leave without transferring ownership or deleting the project." };
+  }
+
+  await prisma.projectMember.delete({
+    where: {
+      projectId_userId: { projectId, userId }
+    }
+  });
+
+  return { success: true };
+}
+

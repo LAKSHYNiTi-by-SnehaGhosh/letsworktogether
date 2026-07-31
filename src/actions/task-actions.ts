@@ -4,126 +4,188 @@ import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function createTask(formData: FormData) {
+export async function ensureDefaultProjectForUser(userId: string): Promise<string> {
+  // 1. Check if user is a member of any project
+  const member = await prisma.projectMember.findFirst({
+    where: { userId },
+    select: { projectId: true },
+  });
+  if (member?.projectId) return member.projectId;
+
+  // 2. Check if user has an organization
+  const orgMember = await prisma.organizationMember.findFirst({
+    where: { userId },
+    select: { organizationId: true },
+  });
+
+  let orgId = orgMember?.organizationId;
+
+  if (!orgId) {
+    let adminRole = await prisma.role.findFirst({ where: { name: "Admin" } });
+    if (!adminRole) {
+      adminRole = await prisma.role.create({ data: { name: "Admin" } });
+    }
+
+    const newOrg = await prisma.organization.create({
+      data: {
+        name: "My Workspace",
+        slug: `workspace-${userId.slice(0, 8)}-${Date.now()}`,
+        members: {
+          create: {
+            userId,
+            roleId: adminRole.id,
+          },
+        },
+      },
+    });
+    orgId = newOrg.id;
+  }
+
+  // 3. Create "Personal Tasks" project under orgId
+  const newProject = await prisma.project.create({
+    data: {
+      name: "Personal Tasks",
+      description: "Default project for personal tasks and to-do items",
+      status: "ACTIVE",
+      organizationId: orgId,
+      members: {
+        create: {
+          userId,
+          role: "OWNER",
+        },
+      },
+    },
+  });
+
+  return newProject.id;
+}
+
+export async function createTask(input: FormData | {
+  title: string;
+  description?: string;
+  priority?: string;
+  projectId?: string;
+  dueDate?: string;
+}) {
   const user = await currentUser();
   if (!user) throw new Error("Unauthorized");
 
-  const title = formData.get("title") as string;
-  const priorityRaw = formData.get("priority") as string;
+  let title = "";
+  let description = "";
   let priority = "MEDIUM";
-  if (priorityRaw === "High") priority = "HIGH";
-  if (priorityRaw === "Low") priority = "LOW";
+  let projectId = "";
+  let dueDate: Date | null = null;
 
-  if (!title || title.trim() === "") throw new Error("Title is required");
-
-  // Find a project to attach the task to, as projectId is mandatory in schema
-  const membership = await prisma.projectMember.findFirst({
-    where: { userId: user.id }
-  });
-
-  let projectId = membership?.projectId;
-
-  if (!projectId) {
-    // Check if user is in an organization
-    const orgMembership = await prisma.organizationMember.findFirst({
-        where: { userId: user.id }
-    });
-    
-    if (orgMembership) {
-        // Create a default project for this user
-        const newProject = await prisma.project.create({
-            data: {
-                name: "Personal Tasks",
-                status: "ACTIVE",
-                organizationId: orgMembership.organizationId,
-                members: {
-                    create: {
-                        userId: user.id,
-                        role: "OWNER"
-                    }
-                }
-            }
-        });
-        projectId = newProject.id;
-    } else {
-        // Find user profile to get some default org if needed?
-        // Actually, many users might not even have an org.
-        const adminRole = await prisma.role.findFirst({ where: { name: "Admin" } }) || 
-                          await prisma.role.create({ data: { name: "Admin" } });
-
-        const org = await prisma.organization.create({
-            data: {
-                name: "My Workspace",
-                slug: "workspace-" + user.id,
-                members: {
-                    create: {
-                        userId: user.id,
-                        roleId: adminRole.id
-                    }
-                }
-            }
-        }).catch(() => null);
-
-        if (!org) {
-            throw new Error("You must belong to an organization to create tasks.");
-        }
-
-        const newProject = await prisma.project.create({
-            data: {
-                name: "Personal Tasks",
-                status: "ACTIVE",
-                organizationId: org.id,
-                members: {
-                    create: {
-                        userId: user.id,
-                        role: "OWNER"
-                    }
-                }
-            }
-        });
-        projectId = newProject.id;
-
-
+  if (input instanceof FormData) {
+    title = (input.get("title") as string) || "";
+    description = (input.get("description") as string) || "";
+    const pRaw = input.get("priority") as string;
+    if (pRaw) {
+      const pUpper = pRaw.toUpperCase();
+      if (["LOW", "MEDIUM", "HIGH", "URGENT"].includes(pUpper)) priority = pUpper;
     }
-  }
-  
-  if (!projectId) {
-     throw new Error("No project found to assign task to.");
+    projectId = (input.get("projectId") as string) || "";
+    const dueRaw = input.get("dueDate") as string;
+    if (dueRaw) dueDate = new Date(dueRaw);
+  } else {
+    title = input.title || "";
+    description = input.description || "";
+    if (input.priority) {
+      const pUpper = input.priority.toUpperCase();
+      if (["LOW", "MEDIUM", "HIGH", "URGENT"].includes(pUpper)) priority = pUpper;
+    }
+    projectId = input.projectId || "";
+    if (input.dueDate) dueDate = new Date(input.dueDate);
   }
 
-  await prisma.task.create({
+  if (!title || title.trim() === "") throw new Error("Task title is required");
+
+  // Validate or assign projectId
+  if (projectId) {
+    const projExists = await prisma.project.findUnique({ where: { id: projectId } });
+    if (!projExists) projectId = "";
+  }
+
+  if (!projectId) {
+    projectId = await ensureDefaultProjectForUser(user.id);
+  }
+
+  const task = await prisma.task.create({
     data: {
-      title,
+      title: title.trim(),
+      description: description.trim() || null,
       priority,
       status: "TODO",
       projectId,
       assigneeId: user.id,
-      dueDate: new Date(),
-    }
+      dueDate: dueDate || new Date(),
+    },
   });
 
   revalidatePath("/dashboard");
-  return { success: true };
+  revalidatePath("/dashboard/tasks");
+  return { success: true, task };
+}
+
+export async function updateTask(taskId: string, data: {
+  title?: string;
+  description?: string;
+  priority?: string;
+  status?: string;
+  projectId?: string;
+  dueDate?: string | null;
+}) {
+  const user = await currentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const existing = await prisma.task.findUnique({ where: { id: taskId } });
+  if (!existing || existing.deletedAt) throw new Error("Task not found");
+
+  const updateData: any = {};
+  if (data.title !== undefined) updateData.title = data.title.trim();
+  if (data.description !== undefined) updateData.description = data.description.trim() || null;
+  if (data.priority !== undefined) {
+    const pUpper = data.priority.toUpperCase();
+    if (["LOW", "MEDIUM", "HIGH", "URGENT"].includes(pUpper)) updateData.priority = pUpper;
+  }
+  if (data.status !== undefined) {
+    const sUpper = data.status.toUpperCase();
+    if (["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"].includes(sUpper)) updateData.status = sUpper;
+  }
+  if (data.projectId) {
+    updateData.projectId = data.projectId;
+  }
+  if (data.dueDate !== undefined) {
+    updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
+  }
+
+  const task = await prisma.task.update({
+    where: { id: taskId },
+    data: updateData,
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/tasks");
+  return { success: true, task };
 }
 
 export async function toggleTaskCompletion(taskId: string, completed: boolean) {
   const user = await currentUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Ensure the task belongs to the user
   const task = await prisma.task.findUnique({ where: { id: taskId } });
-  if (!task) throw new Error("Task not found");
+  if (!task || task.deletedAt) throw new Error("Task not found");
 
-  await prisma.task.update({
+  const updated = await prisma.task.update({
     where: { id: taskId },
     data: {
       status: completed ? "DONE" : "TODO",
-    }
+    },
   });
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/tasks");
-  return { success: true };
+  return { success: true, task: updated };
 }
 
 export async function deleteTask(taskId: string) {
@@ -133,8 +195,30 @@ export async function deleteTask(taskId: string) {
   const task = await prisma.task.findUnique({ where: { id: taskId } });
   if (!task) throw new Error("Task not found");
 
-  await prisma.task.delete({
-    where: { id: taskId }
+  // Soft delete task
+  await prisma.task.update({
+    where: { id: taskId },
+    data: { deletedAt: new Date() },
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/tasks");
+  return { success: true };
+}
+
+export async function clearCompletedTasks() {
+  const user = await currentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  await prisma.task.updateMany({
+    where: {
+      assigneeId: user.id,
+      status: "DONE",
+      deletedAt: null,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
   });
 
   revalidatePath("/dashboard");

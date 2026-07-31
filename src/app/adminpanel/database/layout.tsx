@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { jwtVerify } from "jose";
 import Link from "next/link";
-import { Database, Zap, ArrowLeft } from "lucide-react";
+import { Database, Zap, ArrowLeft, CheckSquare } from "lucide-react";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-key-please-change-in-production"
@@ -61,6 +61,13 @@ export default async function AdminDatabaseLayout({
           >
             <Zap className="w-4 h-4" />
             AI Quotas & Limits
+          </Link>
+          <Link
+            href="/adminpanel/database/tasks_audit"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <CheckSquare className="w-4 h-4" />
+            Task Audit & Verification
           </Link>
           <Link
             href="/adminpanel/database/marketplace"

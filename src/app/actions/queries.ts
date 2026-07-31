@@ -35,7 +35,15 @@ export async function getUserTasks() {
   if (!userId) throw new Error("Unauthorized");
 
   return prisma.task.findMany({
-    where: { assigneeId: userId },
+    where: {
+      assigneeId: userId,
+      deletedAt: null,
+    },
+    include: {
+      project: {
+        select: { id: true, name: true }
+      }
+    },
     orderBy: { updatedAt: "desc" },
   });
 }
@@ -63,19 +71,82 @@ export async function getUserProjects() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  return prisma.project.findMany({
+  const rawProjects = await prisma.project.findMany({
     where: {
+      deletedAt: null,
       OR: [
+        { members: { some: { userId } } },
         { organization: { members: { some: { userId } } } },
-        { members: { some: { userId } } }
+        { team: { members: { some: { userId } } } }
       ]
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     include: {
-      _count: {
-        select: { members: true, tasks: true }
-      }
+      organization: { select: { id: true, name: true, slug: true } },
+      team: { select: { id: true, name: true } },
+      members: {
+        include: {
+          user: { include: { profile: true } }
+        }
+      },
+      tasks: { select: { id: true, status: true, priority: true } },
+      milestones: {
+        orderBy: { createdAt: "desc" },
+        include: { tasks: { select: { id: true, status: true } } }
+      },
+      aiMemories: { select: { id: true, persona: true }, take: 5 },
+      _count: { select: { members: true, tasks: true } }
     }
+  });
+
+  return rawProjects.map(p => {
+    const totalTasks = p.tasks.length;
+    const completedTasks = p.tasks.filter(t => t.status === "DONE").length;
+    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const directMember = p.members.find(m => m.userId === userId);
+    const userRole = directMember ? directMember.role : "MEMBER";
+
+    const activeMilestone = p.milestones.find(m => m.status === "ACTIVE") || p.milestones[0];
+    let sprintSummary = "No active sprint";
+    if (activeMilestone) {
+      const mTasks = activeMilestone.tasks.length;
+      const mDone = activeMilestone.tasks.filter(t => t.status === "DONE").length;
+      sprintSummary = `${activeMilestone.title} (${mDone}/${mTasks} done)`;
+    }
+
+    const hasAiMemory = p.aiMemories.length > 0;
+    const aiPmStatus = {
+      active: hasAiMemory || p.milestones.length > 0,
+      personaCount: p.aiMemories.length,
+      label: hasAiMemory ? "AI PM Active" : p.milestones.length > 0 ? "Sprint Ready" : "AI PM Ready"
+    };
+
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description || "",
+      status: p.status || "ACTIVE",
+      organization: p.organization ? { id: p.organization.id, name: p.organization.name } : null,
+      team: p.team ? { id: p.team.id, name: p.team.name } : null,
+      userRole,
+      membersCount: p.members.length,
+      members: p.members.map(m => ({
+        id: m.id,
+        userId: m.userId,
+        role: m.role,
+        name: m.user.profile ? `${m.user.profile.firstName} ${m.user.profile.lastName}`.trim() : m.user.email,
+        email: m.user.email,
+        avatarUrl: m.user.profile?.avatarUrl || null
+      })),
+      progress,
+      totalTasks,
+      completedTasks,
+      sprintSummary,
+      aiPmStatus,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      _count: p._count
+    };
   });
 }
 
