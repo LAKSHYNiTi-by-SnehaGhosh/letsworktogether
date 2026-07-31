@@ -20,11 +20,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  turbopack: {
-    resolveAlias: {
-      '@prisma/client/runtime/library': './src/lib/prisma-runtime-mock.js',
-    },
-  },
   async headers() {
     return [
       {
