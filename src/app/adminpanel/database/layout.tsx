@@ -18,15 +18,21 @@ async function requireAdmin() {
     redirect("/adminpanel/login");
   }
 
+  let adminId: string | null = null;
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    if (!payload || !payload.adminId) {
-      redirect("/adminpanel/login");
+    if (payload && typeof payload.adminId === "string") {
+      adminId = payload.adminId;
     }
-    return payload.adminId;
-  } catch (error) {
+  } catch {
+    // JWT verification failed
+  }
+
+  if (!adminId) {
     redirect("/adminpanel/login");
   }
+
+  return adminId;
 }
 
 export default async function AdminDatabaseLayout({
