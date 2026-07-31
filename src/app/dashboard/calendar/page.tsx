@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { ensureUserSynced } from "@/lib/user-sync";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function CalendarPage() {
   let clerkUser;
   try {

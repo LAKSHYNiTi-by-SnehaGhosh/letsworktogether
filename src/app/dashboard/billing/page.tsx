@@ -5,6 +5,8 @@ import { ensureUserSynced } from "@/lib/user-sync";
 import { CreditCard, Sparkles, AlertCircle } from "lucide-react";
 import { PricingCards } from "@/components/pricing-cards";
 
+export const dynamic = "force-dynamic";
+
 export default async function BillingDashboard() {
   let clerkUser;
   try {

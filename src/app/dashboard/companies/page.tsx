@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { ensureUserSynced } from "@/lib/user-sync";
 import { Building, Globe } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompaniesPage() {
   let clerkUser;
   try {
